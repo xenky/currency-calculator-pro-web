@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Currency, AllExchangeRates, AppSettings, RateEntry } from '../types';
-import { RateMatrix, createOrderedPairKey } from '../services/exchangeRateService';
+import { RateMatrix, createOrderedPairKey, getFullRateMatrix } from '../services/exchangeRateService';
 import { CURRENCY_LABELS, CURRENCY_VALUE_RANK } from '../constants';
 import { formatNumberForDisplay, parseDisplayNumber } from '../services/calculatorService';
 import { NumericInputKeypad } from './NumericInputKeypad';
@@ -135,7 +135,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   if (!isOpen) return null;
 
   let automaticRateDisplayString = 'Tasa Automática no disponible';
-  const derivedRateFromMatrix = rateMatrix[displayBase]?.[displayQuote];
+  // Create a matrix based purely on official rates to show the correct automatic rate.
+  const officialRateMatrix = getFullRateMatrix(officialRatesData);
+  const derivedRateFromMatrix = officialRateMatrix[displayBase]?.[displayQuote];
 
   if (officialRateEntryForPair) {
     let officialValueForDisplay: number;

@@ -31,7 +31,7 @@ export const NumericInputKeypad: React.FC<NumericInputKeypadProps> = ({ onKeyPre
             className={buttonClass}
             aria-label={key === '⌫' ? 'Retroceso' : key}
           >
-            {key === '⌫' ? <BackspaceIcon className="w-5 h-5 mx-auto" /> : key}
+            {key === '⌫' ? <BackspaceIcon className="w-8 h-8 mx-auto" /> : key}
           </button>
         );
       })}

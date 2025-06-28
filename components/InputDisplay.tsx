@@ -33,7 +33,7 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace }
         className="ml-3 p-3 bg-slate-200 dark:bg-slate-500 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-400 transition-colors"
         aria-label="Retroceso"
       >
-        <BackspaceIcon className="w-6 h-6 text-slate-700 dark:text-white" />
+        <BackspaceIcon className="w-10 h-10 text-slate-700 dark:text-white" />
       </button>
     </div>
   );

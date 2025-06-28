@@ -284,12 +284,12 @@ const App: React.FC = () => {
   else if (activeView === 'about') headerTitle = "Acerca de la Aplicación";
 
   const renderCalculatorView = () => (
-    <>
-      <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg m-2 shadow">
+    <div className="flex flex-col flex-grow overflow-hidden">
+      <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg m-2 shadow flex-shrink-0">
         <InputDisplay value={input} onBackspace={() => handleKeypadPress('⌫')} />
       </div>
 
-      <div className="flex-grow overflow-y-auto p-2 mx-2 mb-2 space-y-2 custom-scrollbar">
+      <div className="flex flex-col justify-between flex-grow overflow-y-auto p-2 mx-2 mb-2 custom-scrollbar">
         {CURRENCIES.map(currency => {
           let displayValue: number | null = null;
           let rateDisplayInfo: ConversionRateInfo | null = null;
@@ -325,7 +325,7 @@ const App: React.FC = () => {
         })}
       </div>
       
-      <div className="mx-2 mb-2">
+      <div className="mx-2 mb-2 flex-shrink-0">
         <Keypad onKeyPress={handleKeypadPress} />
       </div>
 
@@ -345,7 +345,7 @@ const App: React.FC = () => {
           onAppSettingsChange={setAppSettings}
         />
       )}
-    </>
+    </div>
   );
 
   return (
