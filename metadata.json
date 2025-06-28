@@ -1,0 +1,6 @@
+{
+  "name": "Currency Calculator Pro",
+  "description": "A React and Tailwind CSS based currency calculator with real-time conversion, manual rate adjustments, and history.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

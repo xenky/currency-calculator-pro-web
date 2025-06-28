@@ -1,0 +1,385 @@
+
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { evaluate } from 'mathjs';
+import { Header } from './components/Header';
+import { InputDisplay } from './components/InputDisplay';
+import { CurrencyOutput } from './components/CurrencyOutput';
+import { Keypad } from './components/Keypad';
+import { Menu } from './components/Menu';
+import { HistoryScreen } from './components/HistoryScreen';
+import { AboutScreen } from './components/AboutScreen';
+import { Currency, AppSettings, HistoryEntry, ConversionRateInfo, ExchangeRateState, AllExchangeRates, ActiveView, RateEntry } from './types';
+import { initialAppSettings, CURRENCIES, initialExchangeRateState } from './constants';
+import { formatNumberForDisplay, parseDisplayNumber, fetchOfficialRates, calculateEffectiveValue } from './services/calculatorService';
+import { getRateDisplayInfo, applyRateUpdate, getFullRateMatrix, RateMatrix, createOrderedPairKey, parseAndApplyFetchedRates } from './services/exchangeRateService';
+import { useLocalStorage } from './hooks/useLocalStorage';
+import { SettingsModal } from './components/SettingsModal';
+
+const preprocessPercentageExpression = (expression: string): string => {
+  return expression.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g, '(($1)/100*($2))');
+};
+
+const App: React.FC = () => {
+  const [input, setInput] = useState<string>('0');
+  const [activeInputCurrency, setActiveInputCurrency] = useState<Currency>('VES');
+  
+  const [appSettings, setAppSettings] = useLocalStorage<AppSettings>('appSettings', initialAppSettings);
+  const [exchangeRateState, setExchangeRates] = useLocalStorage<ExchangeRateState>('exchangeRates', () => {
+    const storedItem = localStorage.getItem('exchangeRates');
+    if (storedItem) {
+        try {
+            const parsed = JSON.parse(storedItem);
+            if (parsed && typeof parsed.officialRates === 'object' && typeof parsed.manualRates === 'object') {
+                return {
+                    ...initialExchangeRateState, // Start with defaults
+                    ...parsed, // Override with stored values
+                    preferredRateTypes: parsed.preferredRateTypes || {},
+                };
+            }
+        } catch (e) {
+            console.warn("Failed to parse exchange rates from localStorage, using initial values.", e);
+        }
+    }
+    return initialExchangeRateState;
+  });
+  const [history, setHistory] = useLocalStorage<HistoryEntry[]>('operationHistory', []);
+  
+  const [activeView, setActiveView] = useState<ActiveView>('calculator');
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState<boolean>(false);
+
+  const activeRateData = useMemo(() => {
+    const rates: AllExchangeRates = {};
+    const allKnownPairs = new Set([
+        ...Object.keys(exchangeRateState.officialRates),
+        ...Object.keys(exchangeRateState.manualRates)
+    ]);
+
+    for (const pairKey of allKnownPairs) {
+        const preferredType = exchangeRateState.preferredRateTypes[pairKey];
+        const manualRate = exchangeRateState.manualRates[pairKey];
+        const officialRate = exchangeRateState.officialRates[pairKey];
+
+        let rateToUse: RateEntry | undefined = undefined;
+
+        if (preferredType === 'manual' && manualRate) {
+            rateToUse = manualRate;
+        } else if (preferredType === 'oficial') {
+            rateToUse = officialRate;
+        } else {
+            rateToUse = manualRate || officialRate;
+        }
+        
+        if (rateToUse) {
+            rates[pairKey] = rateToUse;
+        }
+    }
+    return rates;
+  }, [exchangeRateState.officialRates, exchangeRateState.manualRates, exchangeRateState.preferredRateTypes]);
+
+  const [rateMatrix, setRateMatrix] = useState<RateMatrix>(() => getFullRateMatrix(activeRateData));
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+  const [editingRateModalParams, setEditingRateModalParams] = useState<{ modalForInputCurrency: Currency, modalForOutputCurrency: Currency } | null>(null);
+  const [lastValidResult, setLastValidResult] = useState<number>(0);
+
+  useEffect(() => {
+    setRateMatrix(getFullRateMatrix(activeRateData));
+  }, [activeRateData]);
+  
+  useEffect(() => {
+    if (appSettings.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [appSettings.darkMode]);
+
+  const fetchAndUpdateCloudRates = useCallback(async () => {
+    try {
+      const cloudData = await fetchOfficialRates();
+      console.log('New rates fetched, updating state...');
+      setExchangeRates(prev => {
+        const updatedOfficialRates = parseAndApplyFetchedRates(cloudData, prev.officialRates);
+        return { ...prev, officialRates: updatedOfficialRates, lastCloudFetchDate: cloudData.date };
+      });
+      return true; // Indicate success for notification handling
+    } catch (error) {
+      console.error("Failed to fetch or process official rates:", error);
+      return false; // Indicate failure
+    }
+  }, [setExchangeRates]);
+
+  const handleManualRateUpdate = useCallback(async () => {
+    const success = await fetchAndUpdateCloudRates();
+    if (success) {
+      setIsUpdateAvailable(true);
+      setTimeout(() => setIsUpdateAvailable(false), 4000);
+    }
+  }, [fetchAndUpdateCloudRates]);
+
+
+  useEffect(() => {
+    // Initial fetch on app load (silently)
+    fetchAndUpdateCloudRates();
+
+    // Listen for updates from the Service Worker
+    const handleSWMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'RATES_UPDATED') {
+        console.log('App received RATES_UPDATED message from SW. Refetching silently...');
+        fetchAndUpdateCloudRates();
+      }
+    };
+    navigator.serviceWorker?.addEventListener('message', handleSWMessage);
+
+    return () => {
+      navigator.serviceWorker?.removeEventListener('message', handleSWMessage);
+    };
+  }, [fetchAndUpdateCloudRates]);
+
+
+  const handleKeypadPress = (key: string) => {
+    const lastChar = input[input.length - 1];
+    const operators = ['+', '-', '*', '/', '%'];
+
+    if (key === 'C') {
+      setInput('0');
+      setLastValidResult(0);
+    } else if (key === '=') {
+      if (input === 'Error' || operators.includes(lastChar) || lastChar === '(' || input.endsWith(',')) {
+        return;
+      }
+      try {
+        let sanitizedInput = input.replace(/\./g, '').replace(/,/g, '.');
+        sanitizedInput = preprocessPercentageExpression(sanitizedInput);
+        const result = evaluate(sanitizedInput);
+        const formattedResult = formatNumberForDisplay(result, 2, true);
+        setInput(formattedResult);
+        setLastValidResult(Number(parseDisplayNumber(formattedResult)));
+        addToHistory(input, formattedResult);
+      } catch (e) {
+        setInput('Error');
+        setLastValidResult(0);
+      }
+    } else if (key === '⌫') {
+      if (input.length > 1 && input !== 'Error') {
+        setInput(input.slice(0, -1));
+      } else {
+        setInput('0');
+      }
+    } else if (input === 'Error') {
+        setInput(key === ',' ? '0,' : key);
+    } else if (operators.includes(key)) {
+        if (input === '0' && key !== '-' && key !== '%') {
+             return;
+        }
+        if (operators.includes(lastChar)) {
+            setInput(input.slice(0, -1) + key);
+        } else if (lastChar !== '(' && !input.endsWith(',')) {
+            setInput(input + key);
+        }
+    } else if (key === ',') {
+        const segments = input.split(/[+\-*/%()]/);
+        const currentNumberSegment = segments.pop() || "";
+        if (!currentNumberSegment.includes(',') && (/\d$/.test(lastChar) || input === '0')) {
+            setInput(input + ',');
+        } else if (input === "") {
+             setInput('0,');
+        }
+    } else if (key === '(') {
+        if (input === '0') {
+            setInput('(');
+        } else if (/\d$/.test(lastChar) || lastChar === ')') {
+            setInput(input + '*(');
+        } else if (operators.includes(lastChar) || lastChar === '(') {
+            setInput(input + '(');
+        }
+    } else if (key === ')') {
+        const openParenCount = (input.match(/\(/g) || []).length;
+        const closeParenCount = (input.match(/\)/g) || []).length;
+        if (openParenCount > closeParenCount && (/\d$/.test(lastChar) || lastChar === ')')) {
+            setInput(input + ')');
+        }
+    } else { 
+        if (input === '0') {
+            setInput(key);
+        } else if (lastChar === ')') {
+             setInput(input + '*' + key);
+        }
+        else {
+            setInput(input + key);
+        }
+    }
+  };
+
+
+  useEffect(() => {
+    if (input === 'Error' || input === '' || input.endsWith(',')) {
+      return;
+    }
+    const lastChar = input[input.length - 1];
+    if (['+', '-', '*', '/', '%', '('].includes(lastChar) ) {
+        const evalInputBeforeOperator = input.slice(0, -1);
+        if (evalInputBeforeOperator === "" || ['+', '-', '*', '/', '%', '('].includes(evalInputBeforeOperator[evalInputBeforeOperator.length -1])) {
+            return;
+        }
+         try {
+            let sanitizedInputBeforeOperator = evalInputBeforeOperator.replace(/\./g, '').replace(/,/g, '.');
+            sanitizedInputBeforeOperator = preprocessPercentageExpression(sanitizedInputBeforeOperator);
+            const result = evaluate(sanitizedInputBeforeOperator);
+            if (!isNaN(result) && isFinite(result)) {
+              setLastValidResult(result);
+            }
+        } catch (e) { /* Keep last valid result if intermediate step is bad */ }
+        return;
+    }
+
+    try {
+      let sanitizedInput = input.replace(/\./g, '').replace(/,/g, '.');
+      sanitizedInput = preprocessPercentageExpression(sanitizedInput);
+      const result = evaluate(sanitizedInput);
+      if (!isNaN(result) && isFinite(result)) {
+        setLastValidResult(result);
+      }
+    } catch (e) { /* Keep last valid result if current input is invalid */ }
+  }, [input]);
+
+  const addToHistory = (expression: string, result: string) => {
+    const newEntry: HistoryEntry = {
+      id: Date.now(),
+      expression,
+      result,
+      currency: activeInputCurrency,
+      timestamp: new Date().toISOString(),
+    };
+    setHistory(prev => [newEntry, ...prev.slice(0, 49)]); 
+  };
+  
+  const handleOpenSettings = (outputCurrency: Currency) => {
+    setEditingRateModalParams({ modalForInputCurrency: activeInputCurrency, modalForOutputCurrency: outputCurrency });
+    setIsSettingsModalOpen(true);
+  };
+
+  const handleSaveManualRate = (from: Currency, to: Currency, newRateValue: number) => {
+    setExchangeRates(prev => {
+      const updatedManualRates = applyRateUpdate(prev.manualRates, from, to, newRateValue, 'Manual');
+      return { ...prev, manualRates: updatedManualRates };
+    });
+  };
+
+  const handleSetPreferredRateType = (pairKey: string, type: 'oficial' | 'manual') => {
+    setExchangeRates(prev => ({
+      ...prev,
+      preferredRateTypes: {
+        ...prev.preferredRateTypes,
+        [pairKey]: type,
+      },
+    }));
+  };
+
+  const evaluationResultForDisplay = lastValidResult;
+  const effectiveEvaluationResult = calculateEffectiveValue(evaluationResultForDisplay, activeInputCurrency, appSettings);
+
+  let headerTitle = "Calculadora de Divisas";
+  if (activeView === 'history') headerTitle = "Historial de Operaciones";
+  else if (activeView === 'about') headerTitle = "Acerca de la Aplicación";
+
+  const renderCalculatorView = () => (
+    <>
+      <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg m-2 shadow">
+        <InputDisplay value={input} onBackspace={() => handleKeypadPress('⌫')} />
+      </div>
+
+      <div className="flex-grow overflow-y-auto p-2 mx-2 mb-2 space-y-2 custom-scrollbar">
+        {CURRENCIES.map(currency => {
+          let displayValue: number | null = null;
+          let rateDisplayInfo: ConversionRateInfo | null = null;
+          
+          if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
+            const multiplier = rateMatrix[activeInputCurrency][currency].value;
+            if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
+               displayValue = effectiveEvaluationResult * multiplier;
+            }
+             rateDisplayInfo = getRateDisplayInfo(activeInputCurrency, currency, activeRateData, rateMatrix);
+          }
+
+          if (currency === activeInputCurrency) {
+            displayValue = effectiveEvaluationResult; 
+            rateDisplayInfo = {
+                pair: `${currency}/${currency}`,
+                value: 1,
+                source: 'System',
+                isDirect: true,
+            };
+          }
+          
+          return (
+            <CurrencyOutput
+              key={currency}
+              currency={currency}
+              value={displayValue}
+              rateInfo={rateDisplayInfo}
+              onSettingsClick={() => handleOpenSettings(currency)}
+              isInputCurrency={currency === activeInputCurrency}
+            />
+          );
+        })}
+      </div>
+      
+      <div className="mx-2 mb-2">
+        <Keypad onKeyPress={handleKeypadPress} />
+      </div>
+
+      {isSettingsModalOpen && editingRateModalParams && (
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          modalForInputCurrency={editingRateModalParams.modalForInputCurrency}
+          modalForOutputCurrency={editingRateModalParams.modalForOutputCurrency}
+          officialRatesData={exchangeRateState.officialRates}
+          manualRatesData={exchangeRateState.manualRates}
+          preferredRateTypes={exchangeRateState.preferredRateTypes}
+          rateMatrix={rateMatrix}
+          onSaveManualRate={handleSaveManualRate}
+          onSetPreferredRateType={handleSetPreferredRateType}
+          appSettings={appSettings}
+          onAppSettingsChange={setAppSettings}
+        />
+      )}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col h-screen max-w-md mx-auto bg-slate-200 dark:bg-slate-800 shadow-lg font-sans">
+        {isUpdateAvailable && (
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
+                Tasas de cambio actualizadas.
+            </div>
+        )}
+      <Header 
+        activeInputCurrency={activeInputCurrency} 
+        onCurrencyChange={(newCurrency) => {
+          setActiveInputCurrency(newCurrency);
+        }}
+        onMenuToggle={() => setIsMenuOpen(true)}
+        activeView={activeView}
+        headerTitle={headerTitle}
+        onNavigateBack={() => setActiveView('calculator')}
+      />
+      
+      {activeView === 'calculator' && renderCalculatorView()}
+      {activeView === 'history' && <HistoryScreen history={history} clearHistory={() => setHistory([])} />}
+      {activeView === 'about' && <AboutScreen />}
+      
+      <Menu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+        appSettings={appSettings}
+        onAppSettingsChange={setAppSettings}
+        setActiveView={setActiveView}
+        onUpdateRates={handleManualRateUpdate}
+      />
+    </div>
+  );
+};
+
+export default App;
