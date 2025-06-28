@@ -7,8 +7,8 @@ const RATES_API_URL = 'https://raw.githubusercontent.com/xenky/exchange_rates/ma
 
 // URLs for the app shell to be cached
 const URLS_TO_CACHE = [
-  '/',
-  '/index.html',
+  './',
+  './index.html',
 ];
 
 // --- Lifecycle Events ---

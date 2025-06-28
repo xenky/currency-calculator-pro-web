@@ -3,17 +3,18 @@
   "short_name": "CurrencyCalc",
   "description": "A React and Tailwind CSS based currency calculator with real-time conversion, manual rate adjustments, and history.",
   "start_url": ".",
+  "scope": "/currency-calculator-pro-web/",
   "display": "standalone",
   "background_color": "#e2e8f0",
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/icon-512.png",
+      "src": "icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
