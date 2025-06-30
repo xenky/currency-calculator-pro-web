@@ -27,14 +27,14 @@ export const createOrderedPairKey = (c1: Currency, c2: Currency): string => {
 
 // Helper to create the full matrix of conversion multipliers
 // The matrix provides: 1 unit of 'from' currency = X units of 'to' currency
-export const getFullRateMatrix = (activeRates: AllExchangeRates): RateMatrix => {
+export const getFullRateMatrix = (activeRates: AllExchangeRates, officialRates: AllExchangeRates): RateMatrix => {
   const matrix: RateMatrix = {};
   const currencies: Currency[] = ['VES', 'COP', 'USD', 'EUR'];
 
-  const getRateValueFromOrderedStore = (cFrom: Currency, cTo: Currency): { value?: number, source?: RateEntry['source'] } => {
+  const getRateValueFromStore = (rates: AllExchangeRates, cFrom: Currency, cTo: Currency): { value?: number, source?: RateEntry['source'] } => {
     if (cFrom === cTo) return { value: 1, source: 'System' };
     const orderedKey = createOrderedPairKey(cFrom, cTo);
-    const rateEntry = activeRates[orderedKey]; // Use activeRates which is merged
+    const rateEntry = rates[orderedKey];
 
     if (rateEntry) {
       if (CURRENCY_VALUE_RANK[cFrom] > CURRENCY_VALUE_RANK[cTo]) { 
@@ -54,14 +54,15 @@ export const getFullRateMatrix = (activeRates: AllExchangeRates): RateMatrix => 
         continue;
       }
 
-      let directConversion = getRateValueFromOrderedStore(from, to);
+      // First, try for a direct or user-preferred rate from the activeRates.
+      let directConversion = getRateValueFromStore(activeRates, from, to);
       if (directConversion.value !== undefined && directConversion.source) {
         matrix[from][to] = { value: directConversion.value, source: directConversion.source };
       } else {
-        // Try to derive via USD if not directly available and not involving USD itself
+        // If no direct/preferred rate, try to derive via USD using ONLY official rates.
         if (from !== 'USD' && to !== 'USD') {
-          const fromToUsdData = getRateValueFromOrderedStore(from, 'USD');
-          const usdToToData = getRateValueFromOrderedStore('USD', to);
+          const fromToUsdData = getRateValueFromStore(officialRates, from, 'USD');
+          const usdToToData = getRateValueFromStore(officialRates, 'USD', to);
 
           if (fromToUsdData.value && usdToToData.value) {
             matrix[from][to] = { 

@@ -6,9 +6,19 @@ const RATES_CACHE_NAME = 'rates-cache-v2';
 const RATES_API_URL = 'https://raw.githubusercontent.com/xenky/exchange_rates/main/rates.json';
 
 // URLs for the app shell to be cached
+// Pre-caching external dependencies to ensure robust offline functionality
 const URLS_TO_CACHE = [
   './',
   './index.html',
+  './manifest.json',
+  './index.css',
+  'https://cdn.tailwindcss.com',
+  'https://esm.sh/react@^19.1.0',
+  'https://esm.sh/react-dom@^19.1.0/client',
+  'https://esm.sh/mathjs@^14.5.2',
+  'https://esm.sh/react-transition-group@^4.4.5',
+  'icon-192.png',
+  'icon-512.png',
 ];
 
 // --- Lifecycle Events ---
@@ -16,8 +26,15 @@ const URLS_TO_CACHE = [
 sw.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME).then((cache) => {
-      console.log('Service Worker: Caching App Shell');
-      return cache.addAll(URLS_TO_CACHE);
+      console.log('Service Worker: Caching App Shell and Dependencies');
+      // Use addAll which fetches and caches. We can ignore errors for individual resources
+      // that might fail, to not fail the entire installation.
+      const cachePromises = URLS_TO_CACHE.map(urlToCache => {
+        return cache.add(urlToCache).catch(err => {
+            console.warn(`Failed to cache ${urlToCache}:`, err);
+        });
+      });
+      return Promise.all(cachePromises);
     })
   );
 });
@@ -98,7 +115,8 @@ sw.addEventListener('fetch', (event) => {
         }
         // Not in cache, fetch from network, cache, and return
         return fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.ok) {
+          // Check if we received a valid response
+          if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
               const responseToCache = networkResponse.clone();
               caches.open(STATIC_CACHE_NAME).then((cache) => {
                 cache.put(event.request, responseToCache);

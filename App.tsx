@@ -14,6 +14,7 @@ import { formatNumberForDisplay, parseDisplayNumber, fetchOfficialRates, calcula
 import { getRateDisplayInfo, applyRateUpdate, getFullRateMatrix, RateMatrix, createOrderedPairKey, parseAndApplyFetchedRates } from './services/exchangeRateService';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { SettingsModal } from './components/SettingsModal';
+import { InstallPwaPrompt } from './components/InstallPwaPrompt';
 
 const preprocessPercentageExpression = (expression: string): string => {
   return expression.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g, '(($1)/100*($2))');
@@ -48,6 +49,9 @@ const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isUpdateAvailable, setIsUpdateAvailable] = useState<boolean>(false);
 
+  const [installPromptEvent, setInstallPromptEvent] = useState<Event | null>(null);
+  const [showInstallPrompt, setShowInstallPrompt] = useState<boolean>(false);
+
   const activeRateData = useMemo(() => {
     const rates: AllExchangeRates = {};
     const allKnownPairs = new Set([
@@ -77,14 +81,14 @@ const App: React.FC = () => {
     return rates;
   }, [exchangeRateState.officialRates, exchangeRateState.manualRates, exchangeRateState.preferredRateTypes]);
 
-  const [rateMatrix, setRateMatrix] = useState<RateMatrix>(() => getFullRateMatrix(activeRateData));
+  const [rateMatrix, setRateMatrix] = useState<RateMatrix>(() => getFullRateMatrix(activeRateData, exchangeRateState.officialRates));
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [editingRateModalParams, setEditingRateModalParams] = useState<{ modalForInputCurrency: Currency, modalForOutputCurrency: Currency } | null>(null);
   const [lastValidResult, setLastValidResult] = useState<number>(0);
 
   useEffect(() => {
-    setRateMatrix(getFullRateMatrix(activeRateData));
-  }, [activeRateData]);
+    setRateMatrix(getFullRateMatrix(activeRateData, exchangeRateState.officialRates));
+  }, [activeRateData, exchangeRateState.officialRates]);
   
   useEffect(() => {
     if (appSettings.darkMode) {
@@ -122,7 +126,6 @@ const App: React.FC = () => {
     // Initial fetch on app load (silently)
     fetchAndUpdateCloudRates();
 
-    // Listen for updates from the Service Worker
     const handleSWMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'RATES_UPDATED') {
         console.log('App received RATES_UPDATED message from SW. Refetching silently...');
@@ -131,10 +134,43 @@ const App: React.FC = () => {
     };
     navigator.serviceWorker?.addEventListener('message', handleSWMessage);
 
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      const dontShowAgain = localStorage.getItem('dontShowInstallPrompt');
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+      if (!dontShowAgain && !isStandalone) {
+        setInstallPromptEvent(e);
+        setShowInstallPrompt(true);
+      }
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
     return () => {
       navigator.serviceWorker?.removeEventListener('message', handleSWMessage);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
   }, [fetchAndUpdateCloudRates]);
+
+  const handleInstall = () => {
+    if (!installPromptEvent || !(installPromptEvent as any).prompt) return;
+    (installPromptEvent as any).prompt();
+    (installPromptEvent as any).userChoice.then((choiceResult: any) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the A2HS prompt');
+      } else {
+        console.log('User dismissed the A2HS prompt');
+      }
+      setInstallPromptEvent(null);
+      setShowInstallPrompt(false);
+    });
+  };
+
+  const handleCloseInstallPrompt = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      localStorage.setItem('dontShowInstallPrompt', 'true');
+    }
+    setShowInstallPrompt(false);
+  };
 
 
   const handleKeypadPress = (key: string) => {
@@ -285,81 +321,67 @@ const App: React.FC = () => {
 
   const renderCalculatorView = () => (
     <div className="flex flex-col flex-grow overflow-hidden">
-      <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-lg m-2 shadow flex-shrink-0">
-        <InputDisplay value={input} onBackspace={() => handleKeypadPress('⌫')} />
+      <div className="m-2 flex-shrink-0">
+        <InputDisplay 
+            value={input} 
+            onBackspace={() => handleKeypadPress('⌫')}
+            activeInputCurrency={activeInputCurrency}
+            onCurrencyChange={setActiveInputCurrency}
+        />
       </div>
 
-      <div className="flex flex-col justify-between flex-grow overflow-y-auto p-2 mx-2 mb-2 custom-scrollbar">
-        {CURRENCIES.map(currency => {
-          let displayValue: number | null = null;
-          let rateDisplayInfo: ConversionRateInfo | null = null;
-          
-          if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
-            const multiplier = rateMatrix[activeInputCurrency][currency].value;
-            if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
-               displayValue = effectiveEvaluationResult * multiplier;
+      <div className="flex-grow overflow-y-auto mx-2 custom-scrollbar">
+        <div className="space-y-2 p-2">
+          {CURRENCIES.map(currency => {
+            let displayValue: number | null = null;
+            let rateDisplayInfo: ConversionRateInfo | null = null;
+            
+            if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
+              const multiplier = rateMatrix[activeInputCurrency][currency].value;
+              if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
+                 displayValue = effectiveEvaluationResult * multiplier;
+              }
+               rateDisplayInfo = getRateDisplayInfo(activeInputCurrency, currency, activeRateData, rateMatrix);
             }
-             rateDisplayInfo = getRateDisplayInfo(activeInputCurrency, currency, activeRateData, rateMatrix);
-          }
 
-          if (currency === activeInputCurrency) {
-            displayValue = effectiveEvaluationResult; 
-            rateDisplayInfo = {
-                pair: `${currency}/${currency}`,
-                value: 1,
-                source: 'System',
-                isDirect: true,
-            };
-          }
-          
-          return (
-            <CurrencyOutput
-              key={currency}
-              currency={currency}
-              value={displayValue}
-              rateInfo={rateDisplayInfo}
-              onSettingsClick={() => handleOpenSettings(currency)}
-              isInputCurrency={currency === activeInputCurrency}
-            />
-          );
-        })}
+            if (currency === activeInputCurrency) {
+              displayValue = effectiveEvaluationResult; 
+              rateDisplayInfo = {
+                  pair: `${currency}/${currency}`,
+                  value: 1,
+                  source: 'System',
+                  isDirect: true,
+              };
+            }
+            
+            return (
+              <CurrencyOutput
+                key={currency}
+                currency={currency}
+                value={displayValue}
+                rateInfo={rateDisplayInfo}
+                onSettingsClick={() => handleOpenSettings(currency)}
+                isInputCurrency={currency === activeInputCurrency}
+              />
+            );
+          })}
+        </div>
       </div>
       
-      <div className="mx-2 mb-2 flex-shrink-0">
+      <div className="mx-2 mb-2 flex-shrink-0 pb-[env(safe-area-inset-bottom)]">
         <Keypad onKeyPress={handleKeypadPress} />
       </div>
-
-      {isSettingsModalOpen && editingRateModalParams && (
-        <SettingsModal
-          isOpen={isSettingsModalOpen}
-          onClose={() => setIsSettingsModalOpen(false)}
-          modalForInputCurrency={editingRateModalParams.modalForInputCurrency}
-          modalForOutputCurrency={editingRateModalParams.modalForOutputCurrency}
-          officialRatesData={exchangeRateState.officialRates}
-          manualRatesData={exchangeRateState.manualRates}
-          preferredRateTypes={exchangeRateState.preferredRateTypes}
-          rateMatrix={rateMatrix}
-          onSaveManualRate={handleSaveManualRate}
-          onSetPreferredRateType={handleSetPreferredRateType}
-          appSettings={appSettings}
-          onAppSettingsChange={setAppSettings}
-        />
-      )}
     </div>
   );
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-slate-200 dark:bg-slate-800 shadow-lg font-sans">
+    <div className="relative flex flex-col h-screen max-w-md mx-auto bg-slate-200 dark:bg-slate-900 shadow-lg font-sans">
         {isUpdateAvailable && (
             <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
                 Tasas de cambio actualizadas.
             </div>
         )}
       <Header 
-        activeInputCurrency={activeInputCurrency} 
-        onCurrencyChange={(newCurrency) => {
-          setActiveInputCurrency(newCurrency);
-        }}
         onMenuToggle={() => setIsMenuOpen(true)}
         activeView={activeView}
         headerTitle={headerTitle}
@@ -378,6 +400,30 @@ const App: React.FC = () => {
         setActiveView={setActiveView}
         onUpdateRates={handleManualRateUpdate}
       />
+
+      {isSettingsModalOpen && editingRateModalParams && (
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          modalForInputCurrency={editingRateModalParams.modalForInputCurrency}
+          modalForOutputCurrency={editingRateModalParams.modalForOutputCurrency}
+          officialRatesData={exchangeRateState.officialRates}
+          manualRatesData={exchangeRateState.manualRates}
+          preferredRateTypes={exchangeRateState.preferredRateTypes}
+          rateMatrix={rateMatrix}
+          onSaveManualRate={handleSaveManualRate}
+          onSetPreferredRateType={handleSetPreferredRateType}
+          appSettings={appSettings}
+          onAppSettingsChange={setAppSettings}
+        />
+      )}
+
+      {showInstallPrompt && (
+        <InstallPwaPrompt
+          onInstall={handleInstall}
+          onClose={handleCloseInstallPrompt}
+        />
+      )}
     </div>
   );
 };

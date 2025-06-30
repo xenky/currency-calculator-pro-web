@@ -1,13 +1,17 @@
 
 import React, { useRef, useLayoutEffect } from 'react';
 import { BackspaceIcon } from './icons/BackspaceIcon';
+import { Currency } from '../types';
+import { CURRENCIES } from '../constants';
 
 interface InputDisplayProps {
   value: string;
   onBackspace: () => void;
+  activeInputCurrency: Currency;
+  onCurrencyChange: (currency: Currency) => void;
 }
 
-export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace }) => {
+export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace, activeInputCurrency, onCurrencyChange }) => {
   const displayFontSize = value.length > 15 ? (value.length > 25 ? 'text-xl' : 'text-2xl') : 'text-4xl';
   const inputRef = useRef<HTMLDivElement>(null);
 
@@ -18,23 +22,43 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace }
   }, [value]);
 
   return (
-    <div className="flex items-center bg-white dark:bg-slate-600 p-3 rounded-lg shadow">
-      <div className="flex-grow overflow-hidden"> {/* Container to manage overflow */}
-        <div 
-          ref={inputRef}
-          className={`text-right text-slate-800 dark:text-white font-mono ${displayFontSize} py-2 overflow-x-auto custom-scrollbar whitespace-nowrap`}
-          style={{ direction: 'ltr' }} // Explicitly LTR for typing, text-align handles visual
-        >
-          {value}
-        </div>
+    <div className="bg-black p-4 rounded-lg shadow-inner flex flex-col space-y-3">
+      {/* Currency Selectors */}
+      <div className="grid grid-cols-4 gap-2">
+        {CURRENCIES.map(currency => (
+          <button
+            key={currency}
+            onClick={() => onCurrencyChange(currency)}
+            className={`py-1 text-sm rounded-md transition-all duration-200 ease-in-out focus:outline-none active:bg-white/10 ${
+              activeInputCurrency === currency 
+                ? 'font-bold text-indigo-400 transform scale-110' 
+                : 'font-medium text-white/70 hover:text-white'
+            }`}
+          >
+            {currency}
+          </button>
+        ))}
       </div>
-      <button 
-        onClick={onBackspace} 
-        className="ml-3 p-3 bg-slate-200 dark:bg-slate-500 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-400 transition-colors"
-        aria-label="Retroceso"
-      >
-        <BackspaceIcon className="w-10 h-10 text-slate-700 dark:text-white" />
-      </button>
+      
+      {/* Input and Backspace */}
+      <div className="flex items-center">
+        <div className="flex-grow overflow-hidden">
+          <div 
+            ref={inputRef}
+            className={`text-right text-white font-mono ${displayFontSize} py-2 overflow-x-auto custom-scrollbar whitespace-nowrap`}
+            style={{ direction: 'ltr' }}
+          >
+            {value || '0'}
+          </div>
+        </div>
+        <button 
+          onClick={onBackspace} 
+          className="ml-3 p-3 rounded-lg active:bg-white/10 transition-colors"
+          aria-label="Retroceso"
+        >
+          <BackspaceIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+        </button>
+      </div>
     </div>
   );
 };

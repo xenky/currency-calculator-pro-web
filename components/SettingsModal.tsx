@@ -136,7 +136,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   let automaticRateDisplayString = 'Tasa Automática no disponible';
   // Create a matrix based purely on official rates to show the correct automatic rate.
-  const officialRateMatrix = getFullRateMatrix(officialRatesData);
+  const officialRateMatrix = getFullRateMatrix(officialRatesData, officialRatesData);
   const derivedRateFromMatrix = officialRateMatrix[displayBase]?.[displayQuote];
 
   if (officialRateEntryForPair) {
@@ -170,108 +170,109 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50 transition-opacity duration-300">
-      <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-lg shadow-xl w-full max-w-sm sm:max-w-md transform transition-all duration-300 scale-100 flex flex-col max-h-[90vh]">
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-white">
-            Ajustar Tasa: {modalForInputCurrency} &rarr; {modalForOutputCurrency}
-            </h2>
-            <button onClick={onClose} className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-full" aria-label="Cerrar modal">
-                <CloseIcon className="w-5 h-5"/>
-            </button>
-        </div>
-        
-        <div className="overflow-y-auto custom-scrollbar pr-2 flex-grow">
-            <div className="mb-4 p-3 bg-slate-100 dark:bg-slate-700 rounded">
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tasa Automática Registrada:</p>
-                <p className="text-md sm:text-lg font-semibold text-indigo-600 dark:text-indigo-400">{automaticRateDisplayString}</p>
-            </div>
+    <div className="absolute inset-0 bg-white dark:bg-slate-800 z-50 flex flex-col">
+      {/* Header */}
+      <div className="flex-shrink-0 flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+        <h2 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-white">
+          Ajustar Tasa: {modalForInputCurrency} &rarr; {modalForOutputCurrency}
+        </h2>
+        <button onClick={onClose} className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-full" aria-label="Cerrar modal">
+          <CloseIcon className="w-6 h-6"/>
+        </button>
+      </div>
 
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Seleccionar Tipo de Tasa:</label>
-                <div className="flex space-x-2 sm:space-x-4">
-                    {(['Oficial', 'Manual'] as RateTypeSelection[]).map(type => (
-                    <button 
-                        key={type}
-                        onClick={() => {
-                            setRateTypeSelection(type);
-                            setErrorMessage(null); // Clear error message when switching types
-                            if (type === 'Manual') {
-                                // When switching to manual, ensure manualRateInput reflects the stored manual rate or official as fallback
-                                let valToSet = '0,00';
-                                const rateEntryForManualField: RateEntry | undefined = manualRateEntryForPair || officialRateEntryForPair;
-                                if (rateEntryForManualField) {
-                                    const higherRank = orderedPairKeyForStorage.split('_')[0] as Currency;
-                                    let valueForDisplay: number;
-                                    if (displayBase === higherRank) {
-                                        valueForDisplay = rateEntryForManualField.value;
-                                    } else {
-                                        valueForDisplay = 1 / rateEntryForManualField.value;
-                                    }
-                                    valToSet = formatNumberForDisplay(valueForDisplay, 2, true);
-                                }
-                                setManualRateInput(valToSet);
-                            }
-                        }}
-                        className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded w-full
-                            ${rateTypeSelection === type ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500'}`}
-                    >
-                        Tasa {type === 'Oficial' ? 'Automática' : 'Manual'}
-                    </button>
-                    ))}
-                </div>
-            </div>
-            
-            {rateTypeSelection === 'Manual' && (
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                 Establecer Tasa Manual: 1 {CURRENCY_LABELS[displayBase]} ({displayBase}) = 
-                </label>
-                <div className={`w-full p-2 border ${errorMessage && rateTypeSelection === 'Manual' ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} rounded bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-right text-xl h-10 flex items-center justify-end`}>
-                  {manualRateInput} 
-                  <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">{CURRENCY_LABELS[displayQuote]} ({displayQuote})</span>
-                </div>
-                {errorMessage && rateTypeSelection === 'Manual' && <p className="text-xs text-red-500 mt-1">{errorMessage}</p>}
-                <NumericInputKeypad onKeyPress={handleNumericKeypadPress} />
-            </div>
-            )}
+      {/* Scrollable Content */}
+      <div className="flex-grow overflow-y-auto custom-scrollbar p-4 sm:p-6">
+          <div className="mb-4 p-3 bg-slate-100 dark:bg-slate-700 rounded">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tasa Automática Registrada:</p>
+              <p className="text-md sm:text-lg font-semibold text-indigo-600 dark:text-indigo-400">{automaticRateDisplayString}</p>
+          </div>
 
-            { (modalForInputCurrency === 'COP' || modalForOutputCurrency === 'COP') && (
-            <div className="mb-4 p-3 border border-dashed border-slate-300 dark:border-slate-600 rounded">
-                <div className="flex items-center justify-between">
-                <label htmlFor="copMultiply" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1 mr-2">
-                    Multiplicar entrada de COP por mil
-                </label>
-                <input
-                    type="checkbox"
-                    id="copMultiply"
-                    checked={appSettings.copMultiplyByThousand}
-                    onChange={handleCopMultiplyToggle}
-                    className="h-5 w-5 text-indigo-600 border-slate-300 dark:border-gray-500 rounded focus:ring-indigo-500"
-                />
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Si al usar Pesos (COP) como moneda de entrada principal, ingresa '20' en lugar de '20.000', active esta opción.
-                </p>
-            </div>
-            )}
-        </div>
+          <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Seleccionar Tipo de Tasa:</label>
+              <div className="flex space-x-2 sm:space-x-4">
+                  {(['Oficial', 'Manual'] as RateTypeSelection[]).map(type => (
+                  <button 
+                      key={type}
+                      onClick={() => {
+                          setRateTypeSelection(type);
+                          setErrorMessage(null); // Clear error message when switching types
+                          if (type === 'Manual') {
+                              // When switching to manual, ensure manualRateInput reflects the stored manual rate or official as fallback
+                              let valToSet = '0,00';
+                              const rateEntryForManualField: RateEntry | undefined = manualRateEntryForPair || officialRateEntryForPair;
+                              if (rateEntryForManualField) {
+                                  const higherRank = orderedPairKeyForStorage.split('_')[0] as Currency;
+                                  let valueForDisplay: number;
+                                  if (displayBase === higherRank) {
+                                      valueForDisplay = rateEntryForManualField.value;
+                                  } else {
+                                      valueForDisplay = 1 / rateEntryForManualField.value;
+                                  }
+                                  valToSet = formatNumberForDisplay(valueForDisplay, 2, true);
+                              }
+                              setManualRateInput(valToSet);
+                          }
+                      }}
+                      className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded w-full
+                          ${rateTypeSelection === type ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500'}`}
+                  >
+                      Tasa {type === 'Oficial' ? 'Automática' : 'Manual'}
+                  </button>
+                  ))}
+              </div>
+          </div>
+          
+          {rateTypeSelection === 'Manual' && (
+          <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+               Establecer Tasa Manual: 1 {CURRENCY_LABELS[displayBase]} ({displayBase}) = 
+              </label>
+              <div className={`w-full p-2 border ${errorMessage && rateTypeSelection === 'Manual' ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} rounded bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-right text-xl h-10 flex items-center justify-end`}>
+                {manualRateInput} 
+                <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">{CURRENCY_LABELS[displayQuote]} ({displayQuote})</span>
+              </div>
+              {errorMessage && rateTypeSelection === 'Manual' && <p className="text-xs text-red-500 mt-1">{errorMessage}</p>}
+              <NumericInputKeypad onKeyPress={handleNumericKeypadPress} />
+          </div>
+          )}
 
-        <div className="mt-auto pt-4 flex justify-end space-x-2 sm:space-x-3 border-t border-slate-200 dark:border-slate-700">
-          <button 
-            onClick={onClose} 
-            className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button 
-            onClick={handleSave} 
-            disabled={saveButtonDisabled}
-            className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-400 dark:disabled:bg-slate-500 transition-colors"
-          >
-            {saveButtonText}
-          </button>
-        </div>
+          { (modalForInputCurrency === 'COP' || modalForOutputCurrency === 'COP') && (
+          <div className="mb-4 p-3 border border-dashed border-slate-300 dark:border-slate-600 rounded">
+              <div className="flex items-center justify-between">
+              <label htmlFor="copMultiply" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1 mr-2">
+                  Multiplicar entrada de COP por mil
+              </label>
+              <input
+                  type="checkbox"
+                  id="copMultiply"
+                  checked={appSettings.copMultiplyByThousand}
+                  onChange={handleCopMultiplyToggle}
+                  className="h-5 w-5 text-indigo-600 border-slate-300 dark:border-gray-500 rounded focus:ring-indigo-500"
+              />
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Si al usar Pesos (COP) como moneda de entrada principal, ingresa '20' en lugar de '20.000', active esta opción.
+              </p>
+          </div>
+          )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex-shrink-0 mt-auto p-4 flex justify-end space-x-2 sm:space-x-3 border-t border-slate-200 dark:border-slate-700 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <button 
+          onClick={onClose} 
+          className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button 
+          onClick={handleSave} 
+          disabled={saveButtonDisabled}
+          className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-400 dark:disabled:bg-slate-500 transition-colors"
+        >
+          {saveButtonText}
+        </button>
       </div>
     </div>
   );

@@ -1,13 +1,10 @@
 
 import React from 'react';
-import { Currency, ActiveView } from '../types';
-import { CURRENCIES } from '../constants';
+import { ActiveView } from '../types';
 import { MenuIcon } from './icons/MenuIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
 
 interface HeaderProps {
-  activeInputCurrency: Currency;
-  onCurrencyChange: (currency: Currency) => void;
   onMenuToggle: () => void;
   activeView: ActiveView;
   headerTitle: string;
@@ -15,16 +12,14 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
-  activeInputCurrency, 
-  onCurrencyChange, 
   onMenuToggle,
   activeView,
   headerTitle,
   onNavigateBack
 }) => {
   return (
-    <div className="bg-indigo-600 dark:bg-slate-800 text-white p-3 shadow-md">
-      <div className="flex justify-between items-center mb-3">
+    <div className="bg-indigo-600 dark:bg-slate-800 text-white p-3 shadow-md flex-shrink-0">
+      <div className="flex justify-between items-center">
         {activeView !== 'calculator' ? (
           <button onClick={onNavigateBack} className="p-2 rounded-full hover:bg-indigo-700 dark:hover:bg-slate-700" aria-label="Volver">
             <ArrowLeftIcon className="w-6 h-6" />
@@ -37,23 +32,6 @@ export const Header: React.FC<HeaderProps> = ({
           <MenuIcon className="w-6 h-6" />
         </button>
       </div>
-      {activeView === 'calculator' && (
-        <div className="grid grid-cols-4 gap-1">
-          {CURRENCIES.map(currency => (
-            <button
-              key={currency}
-              onClick={() => onCurrencyChange(currency)}
-              className={`py-2 px-1 text-sm font-medium rounded-md transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 dark:focus:ring-offset-slate-800 focus:ring-white
-                ${activeInputCurrency === currency 
-                  ? 'bg-white text-indigo-600 dark:bg-slate-600 dark:text-white shadow-md' 
-                  : 'bg-indigo-500 hover:bg-indigo-400 dark:bg-slate-700 dark:hover:bg-slate-600'
-                }`}
-            >
-              {currency}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
