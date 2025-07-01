@@ -10,6 +10,13 @@ export const CURRENCY_LABELS: Record<Currency, string> = {
   EUR: 'Euros',
 };
 
+export const CURRENCY_LABELS_SINGULAR: Record<Currency, string> = {
+  VES: 'Bolívar',
+  COP: 'Peso Colombiano',
+  USD: 'Dólar',
+  EUR: 'Euro',
+};
+
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
   VES: 'Bs.',
   COP: 'COP',
@@ -55,3 +62,4 @@ export const KEYPAD_LAYOUT: string[][] = [
   ['1', '2', '3', '-'],
   ['0', ',', '=', '+'],
 ];
+

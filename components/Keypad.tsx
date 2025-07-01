@@ -32,7 +32,7 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
         const isClear = key === 'C';
         const isSpecialFn = ['(', ')'].includes(key);
 
-        let buttonClass = "py-3 sm:py-3.5 text-lg sm:text-xl font-medium rounded-sm shadow-sm active:scale-95 transform-gpu transition-all duration-100 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-300 dark:focus-visible:ring-offset-slate-800 ";
+        let buttonClass = "py-1.5 sm:py-3.5 text-lg sm:text-xl font-medium rounded-sm shadow-sm active:scale-95 transform-gpu transition-all duration-100 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-300 dark:focus-visible:ring-offset-slate-800 ";
 
         if (isEqual) {
           buttonClass += "bg-indigo-500 active:bg-indigo-600 text-white col-span-1 focus-visible:ring-indigo-500";
@@ -63,3 +63,5 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
     </div>
   );
 };
+
+

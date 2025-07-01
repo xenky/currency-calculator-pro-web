@@ -22,7 +22,7 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace, 
   }, [value]);
 
   return (
-    <div className="bg-black p-4 rounded-lg shadow-inner flex flex-col space-y-3">
+    <div className="bg-black p-4 shadow-inner flex flex-col space-y-3">
       {/* Currency Selectors */}
       <div className="grid grid-cols-4 gap-2">
         {CURRENCIES.map(currency => (

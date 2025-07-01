@@ -33,8 +33,8 @@ export interface AppSettings {
 export interface HistoryEntry {
   id: number;
   expression: string;
-  result: string;
-  currency: Currency;
+  results: Record<Currency, number>;
+  inputCurrency: Currency;
   timestamp: string;
 }
 

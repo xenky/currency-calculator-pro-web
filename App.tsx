@@ -22,7 +22,7 @@ const preprocessPercentageExpression = (expression: string): string => {
 
 const App: React.FC = () => {
   const [input, setInput] = useState<string>('0');
-  const [activeInputCurrency, setActiveInputCurrency] = useState<Currency>('VES');
+  const [activeInputCurrency, setActiveInputCurrency] = useLocalStorage<Currency>('activeInputCurrency', 'VES');
   
   const [appSettings, setAppSettings] = useLocalStorage<AppSettings>('appSettings', initialAppSettings);
   const [exchangeRateState, setExchangeRates] = useLocalStorage<ExchangeRateState>('exchangeRates', () => {
@@ -121,6 +121,35 @@ const App: React.FC = () => {
     }
   }, [fetchAndUpdateCloudRates]);
 
+  const addToHistory = useCallback((expression: string, rawResult: number) => {
+    const effectiveResult = calculateEffectiveValue(rawResult, activeInputCurrency, appSettings);
+    
+    const allResults: Record<Currency, number> = {} as Record<Currency, number>;
+
+    CURRENCIES.forEach(currency => {
+        if (currency === activeInputCurrency) {
+            allResults[currency] = effectiveResult;
+        } else if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
+            const multiplier = rateMatrix[activeInputCurrency][currency].value;
+            if (multiplier && isFinite(effectiveResult)) {
+                allResults[currency] = effectiveResult * multiplier;
+            } else {
+                allResults[currency] = 0;
+            }
+        } else {
+            allResults[currency] = 0;
+        }
+    });
+
+    const newEntry: HistoryEntry = {
+        id: Date.now(),
+        expression: expression,
+        results: allResults,
+        inputCurrency: activeInputCurrency,
+        timestamp: new Date().toISOString(),
+    };
+    setHistory(prev => [newEntry, ...prev.slice(0, 49)]);
+  }, [activeInputCurrency, appSettings, rateMatrix, setHistory]);
 
   useEffect(() => {
     // Initial fetch on app load (silently)
@@ -190,8 +219,9 @@ const App: React.FC = () => {
         const result = evaluate(sanitizedInput);
         const formattedResult = formatNumberForDisplay(result, 2, true);
         setInput(formattedResult);
-        setLastValidResult(Number(parseDisplayNumber(formattedResult)));
-        addToHistory(input, formattedResult);
+        const newResultValue = Number(parseDisplayNumber(formattedResult));
+        setLastValidResult(newResultValue);
+        addToHistory(input, newResultValue);
       } catch (e) {
         setInput('Error');
         setLastValidResult(0);
@@ -278,17 +308,6 @@ const App: React.FC = () => {
       }
     } catch (e) { /* Keep last valid result if current input is invalid */ }
   }, [input]);
-
-  const addToHistory = (expression: string, result: string) => {
-    const newEntry: HistoryEntry = {
-      id: Date.now(),
-      expression,
-      result,
-      currency: activeInputCurrency,
-      timestamp: new Date().toISOString(),
-    };
-    setHistory(prev => [newEntry, ...prev.slice(0, 49)]); 
-  };
   
   const handleOpenSettings = (outputCurrency: Currency) => {
     setEditingRateModalParams({ modalForInputCurrency: activeInputCurrency, modalForOutputCurrency: outputCurrency });
@@ -321,7 +340,7 @@ const App: React.FC = () => {
 
   const renderCalculatorView = () => (
     <div className="flex flex-col flex-grow overflow-hidden">
-      <div className="m-2 flex-shrink-0">
+      <div className="mb-2 ml-1 mr-1 flex-shrink-0">
         <InputDisplay 
             value={input} 
             onBackspace={() => handleKeypadPress('⌫')}
@@ -330,8 +349,7 @@ const App: React.FC = () => {
         />
       </div>
 
-      <div className="flex-grow overflow-y-auto mx-2 custom-scrollbar">
-        <div className="space-y-2 p-2">
+      <div className="flex flex-col justify-between flex-grow overflow-y-auto mx-2 mb-1 custom-scrollbar">
           {CURRENCIES.map(currency => {
             let displayValue: number | null = null;
             let rateDisplayInfo: ConversionRateInfo | null = null;
@@ -365,7 +383,6 @@ const App: React.FC = () => {
               />
             );
           })}
-        </div>
       </div>
       
       <div className="mx-2 mb-2 flex-shrink-0 pb-[env(safe-area-inset-bottom)]">

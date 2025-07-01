@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Currency, AllExchangeRates, AppSettings, RateEntry } from '../types';
 import { RateMatrix, createOrderedPairKey, getFullRateMatrix } from '../services/exchangeRateService';
-import { CURRENCY_LABELS, CURRENCY_VALUE_RANK } from '../constants';
+import { CURRENCY_LABELS, CURRENCY_LABELS_SINGULAR, CURRENCY_VALUE_RANK } from '../constants';
 import { formatNumberForDisplay, parseDisplayNumber } from '../services/calculatorService';
 import { NumericInputKeypad } from './NumericInputKeypad';
 import { CloseIcon } from './icons/CloseIcon';
@@ -147,9 +147,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } else { 
         officialValueForDisplay = 1 / officialRateEntryForPair.value;
     }
-    automaticRateDisplayString = `1 ${CURRENCY_LABELS[displayBase]} = ${formatNumberForDisplay(officialValueForDisplay, 2, true)} ${CURRENCY_LABELS[displayQuote]} (Fuente: ${officialRateEntryForPair.source})`;
+    automaticRateDisplayString = `1 ${CURRENCY_LABELS_SINGULAR[displayBase]} = ${formatNumberForDisplay(officialValueForDisplay, 2, true)} ${CURRENCY_LABELS[displayQuote]} (Fuente: ${officialRateEntryForPair.source})`;
   } else if (derivedRateFromMatrix && derivedRateFromMatrix.value > 0 && derivedRateFromMatrix.source !== 'No Disponible') {
-      automaticRateDisplayString = `1 ${CURRENCY_LABELS[displayBase]} = ${formatNumberForDisplay(derivedRateFromMatrix.value, 2, true)} ${CURRENCY_LABELS[displayQuote]} (Fuente: Derivada)`;
+      automaticRateDisplayString = `1 ${CURRENCY_LABELS_SINGULAR[displayBase]} = ${formatNumberForDisplay(derivedRateFromMatrix.value, 2, true)} ${CURRENCY_LABELS[displayQuote]} (Fuente: Derivada)`;
   }
   
   const saveButtonText = rateTypeSelection === 'Manual' ? 'Guardar Tasa Manual' : 'Usar Tasa Automática';
@@ -226,7 +226,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {rateTypeSelection === 'Manual' && (
           <div className="mb-4">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-               Establecer Tasa Manual: 1 {CURRENCY_LABELS[displayBase]} ({displayBase}) = 
+               Establecer Tasa Manual: 1 {CURRENCY_LABELS_SINGULAR[displayBase]} ({displayBase}) = 
               </label>
               <div className={`w-full p-2 border ${errorMessage && rateTypeSelection === 'Manual' ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} rounded bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-right text-xl h-10 flex items-center justify-end`}>
                 {manualRateInput} 
