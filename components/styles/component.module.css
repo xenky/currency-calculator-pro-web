@@ -1,0 +1,609 @@
+.keypadButton {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.outputCard {
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+@media (max-height: 600px) {
+    .inputCurrency {
+        font-size: 12px;
+        margin-bottom: -8px;
+    }
+
+    .inputValue {
+        margin-top: 0;
+        padding-top: 2px;
+        font-size: 30px;
+    }
+
+    .inputContentButton {
+        padding-top: -3px;
+        margin-top: -4px;
+    }
+
+    .inputButton {
+        width: 30px;
+        height: 30px;
+        padding: -19;
+        margin: -19;
+    }
+
+    .keypadButton {
+        padding-top: 0;
+        padding-bottom:0;
+    }
+
+    .outputCard {
+        padding-top: 1px;
+        padding-bottom: 1px;
+    }
+
+    .outputLabel {
+        font-size: 8px;
+    }
+
+    .outputIcon {
+        width: 12px;
+        height: 12px;
+    }
+
+    .outputValue {
+        font-size: 14px;
+        /* padding-top: -1px;
+        padding-bottom: -1px; */
+        margin-top: -3px;
+        margin-bottom: -2px;
+
+    }
+
+    .outputRateInfo {
+        font-size: 7px;
+    }
+}
+
+@media (min-height: 601px) and (max-height: 625px) {
+    .keypadButton {
+        padding-top: 0px;
+        padding-bottom: 0px;
+    }
+
+    .outputCard {
+        padding-top: 1px;
+        padding-bottom: 1px;
+    }
+
+    .outputLabel {
+        font-size: 10px;
+    }
+
+    .outputIcon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+        /* padding-top: -1px;
+        padding-bottom: -1px; */
+        margin-top: -3px;
+        margin-bottom: -2px;
+
+    }
+
+    .outputRateInfo {
+        font-size: 8px;
+    }
+}
+
+@media (min-height: 626px) and (max-height: 650px) {
+    .keypadButton {
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    .outputCard {
+        padding-top: 2px;
+        padding-bottom: 1px;
+    }
+
+    .outputLabel {
+        font-size: 10px;
+    }
+
+    .outputIcon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+        /* padding-top: -1px;
+        padding-bottom: -1px; */
+        margin-top: -3px;
+        margin-bottom: -2px;
+
+    }
+
+    .outputRateInfo {
+        font-size: 8px;
+    }
+}
+
+@media (min-height: 651px) and (max-height: 675px) {
+    .keypadButton {
+        padding-top: 4px;
+        padding-bottom: 4px;
+        font-size: 19px;
+    }
+
+    .outputCard {
+        padding-top: 2px;
+        padding-bottom: 1px;
+    }
+
+    .outputLabel {
+        font-size: 10px;
+    }
+
+    .outputIcon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+        margin-top: -3px;
+        margin-bottom: -2px;
+
+    }
+
+    .outputRateInfo {
+        font-size: 8px;
+    }
+}
+
+@media (min-height: 676px) and (max-height: 700px) {
+    .keypadButton {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        font-size: 19px;
+    }
+
+    .outputCard {
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    .outputLabel {
+        font-size: 10px;
+    }
+
+    .outputIcon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+        margin-top: -3px;
+        margin-bottom: -2px;
+
+    }
+
+    .outputRateInfo {
+        font-size: 8px;
+    }
+}
+
+@media (min-height: 701px) and (max-height: 725px) {
+    .keypadButton {
+        padding-top: 4px;
+        padding-bottom: 4px;
+        font-size: 20px;
+    }
+
+    .outputCard {
+        padding-top: 2px;
+        padding-bottom: 1px;
+    }
+
+    .outputLabel {
+        font-size: 12px;
+    }
+
+    .outputIcon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+    }
+
+    .outputRateInfo {
+        font-size: 10px;
+    }
+}
+
+@media (min-height: 726px) and (max-height: 750px) {
+    .keypadButton {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        font-size: 23px;
+    }
+
+    .outputCard {
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    .outputLabel {
+        font-size: 12px;
+    }
+
+    .outputIcon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+    }
+
+    .outputRateInfo {
+        font-size: 10px;
+    }
+}
+
+@media (min-height: 751px) and (max-height: 775px) {
+    .keypadButton {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        font-size: 24px;
+    }
+
+    .outputCard {
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    .outputLabel {
+        font-size: 12px;
+    }
+
+    .outputIcon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+    }
+
+    .outputRateInfo {
+        font-size: 10px;
+    }
+}
+
+@media (min-height: 776px) and (max-height: 800px) {
+    .keypadButton {
+        padding-top: 7px;
+        padding-bottom: 7px;
+        font-size: 24px;
+    }
+
+    .outputCard {
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    .outputLabel {
+        font-size: 12px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+
+    .outputValue {
+        font-size: 18px;
+    }
+
+    .outputRateInfo {
+        font-size: 10px;
+    }
+}
+
+@media (min-height: 801px) and (max-height: 825px) {
+    .keypadButton {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        font-size: 24px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+}
+
+@media (min-height: 826px) and (max-height: 850px) {
+    .keypadButton {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 25px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+}
+
+@media (min-height: 851px) and (max-height: 875px) {
+    .keypadButton {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        font-size: 25px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+}
+ 
+@media (min-height: 876px) and (max-height: 900px) {
+    .keypadButton {
+        padding-top: 14px;
+        padding-bottom: 14px;
+        font-size: 26px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+}
+
+@media (min-height: 901px) and (max-height: 925px){
+    .keypadButton {
+        padding-top: 14px;
+        padding-bottom: 14px;
+        font-Size: 26px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+
+    .outputCard {
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+}
+
+@media (min-height: 926px) and (max-height: 950px){
+    .keypadButton {
+        padding-top: 16px;
+        padding-bottom: 16px;
+        font-Size: 26px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+
+    .outputCard {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+}
+
+@media (min-height: 951px) and (max-height: 975px){
+    .keypadButton {
+        padding-top: 18px;
+        padding-bottom: 18px;
+        font-Size: 26px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+
+    .outputCard {
+        padding-top: 6px;
+        padding-bottom: 5px;
+    }
+}
+
+@media (min-height: 976px) and (max-height: 1000px){
+    .keypadButton {
+        padding-top: 19px;
+        padding-bottom: 19px;
+        font-Size: 28px;
+    }
+
+    .outputIcon {
+        width: 17px;
+        height: 17px;
+    }
+
+    .outputCard {
+        padding-top: 6px;
+        padding-bottom: 5px;
+    }
+}
+
+@media (min-height: 1001px) and (max-height: 1050px){
+    .keypadButton {
+        padding-top: 21px;
+        padding-bottom: 21px;
+        font-size: 28px;
+    }
+
+    .outputCard {
+        padding-top: 7px;
+        padding-bottom: 6px;
+    }
+}
+
+@media (min-height: 1051px) and (max-height: 1100px){
+    .keypadButton {
+        padding-top: 26px;
+        padding-bottom: 26px;
+        font-size: 28px;
+    }
+
+    .outputCard {
+        padding-top: 7px;
+        padding-bottom: 6px;
+    }
+}
+
+@media (min-height: 1101px) and (max-height: 1150px){
+    .keypadButton {
+        padding-top: 26px;
+        padding-bottom: 26px;
+        font-size: 28px;
+    }
+
+    .outputCard {
+        padding-top: 6px;
+        padding-bottom: 5px;
+    }
+
+    .outputLabel {
+        font-size: 14px;
+    }
+
+    .outputIcon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .outputValue {
+        font-size: 28px;
+    }
+
+    .outputRateInfo {
+        font-size: 12px;
+    }
+}
+
+@media (min-height: 1151px) and (max-height: 1200px){
+    .keypadButton {
+        padding-top: 26px;
+        padding-bottom: 26px;
+        font-size: 32px;
+    }
+
+    .outputCard {
+        padding-top: 8px;
+        padding-bottom: 7px;
+    }
+
+    .outputLabel {
+        font-size: 14px;
+    }
+
+    .outputIcon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .outputValue {
+        font-size: 28px;
+    }
+
+    .outputRateInfo {
+        font-size: 12px;
+    }
+}
+
+@media (min-height: 1201px) and (max-height: 1300px){
+    .keypadButton {
+        padding-top: 28px;
+        padding-bottom: 28px;
+        font-size: 32px;
+    }
+
+    .outputCard {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    .outputLabel {
+        font-size: 16px;
+    }
+
+    .outputIcon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .outputValue {
+        font-size: 30px;
+    }
+
+    .outputRateInfo {
+        font-size: 14px;
+    }
+}
+
+@media (min-height: 1301px){
+    .inputCurrency {
+        font-size: 16px;
+        /* margin-bottom: -8px; */
+    }
+
+    .inputValue {
+        /* margin-top: 2;
+        padding-top: 2px; */
+        margin-bottom: 10px;
+        font-size: 50px;
+    }
+
+    .inputButton {
+        width: 50px;
+        height: 50px;
+        /* padding: -19;
+        margin: -19; */
+    }
+
+    .keypadButton {
+        padding-top: 28px;
+        padding-bottom: 28px;
+        font-size: 32px;
+    }
+
+    .outputCard {
+        padding-top: 10px;
+        padding-bottom: 8px;
+    }
+
+    .outputLabel {
+        font-size: 20px;
+    }
+
+    .outputIcon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .outputValue {
+        font-size: 36px;
+    }
+
+    .outputRateInfo {
+        font-size: 16px;
+    }
+}

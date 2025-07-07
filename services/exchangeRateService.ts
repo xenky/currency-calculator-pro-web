@@ -67,7 +67,7 @@ export const getFullRateMatrix = (activeRates: AllExchangeRates, officialRates: 
           if (fromToUsdData.value && usdToToData.value) {
             matrix[from][to] = { 
               value: fromToUsdData.value * usdToToData.value, 
-              source: 'Derived' 
+              source: 'Derivada' 
             };
           } else {
             matrix[from][to] = { value: 0, source: 'No Disponible' };
@@ -112,8 +112,8 @@ export const applyRateUpdate = (
   } else if (sourceName === 'BCV' || sourceName === 'BANREP' || sourceName === 'BCE') {
     type = 'oficial';
   } else {
-    console.warn(`Unexpected sourceName "${sourceName}" in applyRateUpdate, defaulting type to 'derived'.`);
-    type = 'derived'; 
+    console.warn(`Unexpected sourceName "${sourceName}" in applyRateUpdate, defaulting type to 'derivada'.`);
+    type = 'derivada'; 
   }
 
   newRateData[orderedKey] = {
@@ -194,9 +194,9 @@ export const getRateDisplayInfo = (
       // So, displayValueForPair is 1 / matrixEntry.value (e.g. 1 USD = 1/0.028 VES = 35 VES)
       displayValueForPair = 1 / matrixEntry.value;
     }
-    const validSource: RateEntrySource = (matrixEntry.source === 'Derived' || matrixEntry.source === 'System' || matrixEntry.source === 'BCV' || matrixEntry.source === 'BANREP' || matrixEntry.source === 'BCE' || matrixEntry.source === 'Manual') 
+    const validSource: RateEntrySource = (matrixEntry.source === 'Derivada' || matrixEntry.source === 'System' || matrixEntry.source === 'BCV' || matrixEntry.source === 'BANREP' || matrixEntry.source === 'BCE' || matrixEntry.source === 'Manual') 
                         ? matrixEntry.source 
-                        : 'Derived'; // Default to derived if somehow an unexpected source like 'No Disponible' slips through value check
+                        : 'Derivada'; // Default to derived if somehow an unexpected source like 'No Disponible' slips through value check
     return {
       pair: displayPairString,
       value: displayValueForPair,

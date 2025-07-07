@@ -340,6 +340,7 @@ const App: React.FC = () => {
 
   const renderCalculatorView = () => (
     <div className="flex flex-col flex-grow overflow-hidden">
+      
       <div className="mb-2 ml-1 mr-1 flex-shrink-0">
         <InputDisplay 
             value={input} 
@@ -349,7 +350,7 @@ const App: React.FC = () => {
         />
       </div>
 
-      <div className="flex flex-col justify-between flex-grow overflow-y-auto mx-2 mb-1 custom-scrollbar">
+      <div className="flex flex-col h-full  overflow-y-auto mx-2 mb-1 custom-scrollbar">
           {CURRENCIES.map(currency => {
             let displayValue: number | null = null;
             let rateDisplayInfo: ConversionRateInfo | null = null;

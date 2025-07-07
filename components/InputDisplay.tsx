@@ -3,6 +3,7 @@ import React, { useRef, useLayoutEffect } from 'react';
 import { BackspaceIcon } from './icons/BackspaceIcon';
 import { Currency } from '../types';
 import { CURRENCIES } from '../constants';
+import  styles from './styles/component.module.css';
 
 interface InputDisplayProps {
   value: string;
@@ -22,14 +23,14 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace, 
   }, [value]);
 
   return (
-    <div className="bg-black p-4 shadow-inner flex flex-col space-y-3">
+    <div className="bg-black p-1 dark:bg-black shadow-inner flex flex-col space-y-1">
       {/* Currency Selectors */}
       <div className="grid grid-cols-4 gap-2">
         {CURRENCIES.map(currency => (
           <button
             key={currency}
             onClick={() => onCurrencyChange(currency)}
-            className={`py-1 text-sm rounded-md transition-all duration-200 ease-in-out focus:outline-none active:bg-white/10 ${
+            className={`${styles.inputCurrency} py-1 text-sm rounded-md transition-all duration-200 ease-in-out focus:outline-none active:bg-white/10 ${
               activeInputCurrency === currency 
                 ? 'font-bold text-indigo-400 transform scale-110' 
                 : 'font-medium text-white/70 hover:text-white'
@@ -45,7 +46,7 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace, 
         <div className="flex-grow overflow-hidden">
           <div 
             ref={inputRef}
-            className={`text-right text-white font-mono ${displayFontSize} py-2 overflow-x-auto custom-scrollbar whitespace-nowrap`}
+            className={`${styles.inputValue} text-right text-white font-mono ${displayFontSize} ml-3 py-2 overflow-x-auto custom-scrollbar whitespace-nowrap`}
             style={{ direction: 'ltr' }}
           >
             {value || '0'}
@@ -53,10 +54,10 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, onBackspace, 
         </div>
         <button 
           onClick={onBackspace} 
-          className="ml-3 p-3 rounded-lg active:bg-white/10 transition-colors"
+          className={`${styles.inputContentButton} ml-3 px-3 rounded-lg active:bg-white/10 transition-colors`}
           aria-label="Retroceso"
         >
-          <BackspaceIcon className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+          <BackspaceIcon className={`${styles.inputButton} w-8 h-8 sm:w-10 sm:h-10 text-white`} />
         </button>
       </div>
     </div>

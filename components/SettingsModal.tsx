@@ -66,7 +66,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       }
       setRateTypeSelection(initialSelection);
       
-      let initialManualInputValue = '0,00';
+      let initialManualInputValue = '0';
       const rateEntryToUseForManualField: RateEntry | undefined = manualRateEntryForPair || officialRateEntryForPair;
 
       if (rateEntryToUseForManualField) {

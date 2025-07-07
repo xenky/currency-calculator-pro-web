@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from 'url';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      base: '/currency-calculator-pro-web/',
+      base: './',
       plugins: [
         tailwindcss(),
       ],

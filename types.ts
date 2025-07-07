@@ -1,14 +1,14 @@
 
 export type Currency = 'VES' | 'COP' | 'USD' | 'EUR';
 
-export type RateEntrySource = 'BCV' | 'BANREP' | 'BCE' | 'Manual' | 'Derived' | 'System';
+export type RateEntrySource = 'BCV' | 'BANREP' | 'BCE' | 'Manual' | 'Derivada' | 'System';
 
 // Renamed from Rate to RateEntry to avoid potential conflicts and improve clarity
 export interface RateEntry {
   value: number;
-  source: RateEntrySource; 
-  isDirect?: boolean; 
-  type: 'oficial' | 'manual' | 'derived' | 'identity'; // Changed 'cloud' to 'oficial'
+  source: RateEntrySource;
+  isDirect?: boolean;
+  type: 'oficial' | 'manual' | 'derivada' | 'identity'; // Changed 'cloud' to 'oficial'
 }
 
 // Represents the collection of rate pairs
@@ -39,10 +39,10 @@ export interface HistoryEntry {
 }
 
 export interface ConversionRateInfo {
-  pair: string; 
+  pair: string;
   value: number;
   source: RateEntry['source'];
-  isDirect: boolean; 
+  isDirect: boolean;
 }
 
 // New type for the data structure from the official rates JSON endpoint
@@ -62,8 +62,8 @@ export interface FetchedCloudRates {
 
 
 export interface RateSourceInfo {
-  sourceName: RateEntry['source']; 
-  ratePair: string; 
+  sourceName: RateEntry['source'];
+  ratePair: string;
   rateValue: number;
 }
 

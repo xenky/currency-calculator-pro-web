@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { KEYPAD_LAYOUT } from '../constants';
+import  styles from './styles/component.module.css';
 
 interface KeypadProps {
   onKeyPress: (key: string) => void;
@@ -32,14 +33,14 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
         const isClear = key === 'C';
         const isSpecialFn = ['(', ')'].includes(key);
 
-        let buttonClass = "py-1.5 sm:py-3.5 text-lg sm:text-xl font-medium rounded-sm shadow-sm active:scale-95 transform-gpu transition-all duration-100 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-300 dark:focus-visible:ring-offset-slate-800 ";
+        let buttonClass = "text-lg sm:text-xl font-medium rounded-sm shadow-sm active:scale-95 transform-gpu transition-all duration-100 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-300 dark:focus-visible:ring-offset-slate-800";
 
         if (isEqual) {
-          buttonClass += "bg-indigo-500 active:bg-indigo-600 text-white col-span-1 focus-visible:ring-indigo-500";
+          buttonClass += "bg-indigo-600 active:bg-indigo-600 text-white dark:bg-indigo-600 col-span-1 focus-visible:ring-indigo-500";
         } else if (isOperator) {
           buttonClass += "bg-slate-400 active:bg-slate-500 text-slate-800 dark:bg-slate-600 dark:active:bg-slate-500 dark:text-white focus-visible:ring-slate-500";
         } else if (isClear) {
-           buttonClass += "bg-red-400 active:bg-red-500 text-white focus-visible:ring-red-500";
+           buttonClass += "bg-red-400 active:bg-red-500 text-white dark:bg-red-400 focus-visible:ring-red-500";
         } else if (isSpecialFn) {
             buttonClass += "bg-slate-200 active:bg-slate-300 text-slate-700 dark:bg-slate-500 dark:active:bg-slate-400 dark:text-slate-100 focus-visible:ring-slate-400";
         }
@@ -52,7 +53,7 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
           <button
             key={key}
             onClick={() => onKeyPress(key)}
-            className={buttonClass}
+            className={`${buttonClass} ${styles.keypadButton}`}
             aria-label={getAriaLabelForKey(key)}
             role="gridcell"
           >
