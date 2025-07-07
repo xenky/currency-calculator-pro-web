@@ -3,7 +3,7 @@
   "short_name": "Calculadora de Divisas",
   "description": "Una calculadora de divisas basada en React y Tailwind CSS con conversión en tiempo real, ajustes de tasa manuales e historial.",
   "start_url": "./?utm_source=web_app_manifest",
-  "scope": "/currency-calculator-pro-web/",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#e2e8f0",
   "theme_color": "#4f46e5",
