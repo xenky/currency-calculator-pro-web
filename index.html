@@ -4,11 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Currency Calculator Pro</title>
-    <link rel="manifest" href="/currency-calculator-pro-web/assets/manifest-BaklC2wb.json" />
+    <link rel="manifest" href="./assets/manifest-DHvmUac6.json" />
     <meta name="theme-color" content="#4f46e5" />
-    <link rel="apple-touch-icon" href="./icon-192.png">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="MobileOptimized" content="width">
+    <meta name="HandheldFriendly" content="true">
+    <!-- add to homescreen for ios -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Ionic App" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <link rel="shorcut icon" type="image/png" href="./assets/calculator-DfvbZ6F7.png">
+    <link rel="apple-touch-icon" href="./assets/icon-192-C8thD4vV.png">
+    <!-- <link rel="stylesheet" href="app.css"> -->
 
-    <script>
+    <!-- <script>
       tailwind.config = {
         darkMode: 'class', // Enable class-based dark mode
         theme: {
@@ -17,7 +27,7 @@
           }
         }
       }
-    </script>
+    </script>-->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       /* Custom scrollbar for webkit browsers */
@@ -67,7 +77,8 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/currency-calculator-pro-web/assets/index-DGHUin6F.js"></script>
+  <script type="module" crossorigin src="./assets/index-Ces6JC6L.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-04FYsGl4.css">
 </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -75,7 +86,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.js')
+          navigator.serviceWorker.register('./service-worker.ts')
             .then(registration => {
               console.log('ServiceWorker registration successful with scope: ', registration.scope);
               // Attempt to register for periodic background sync
