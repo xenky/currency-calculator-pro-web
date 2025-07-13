@@ -17,29 +17,29 @@ interface CurrencyOutputProps {
 export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({ currency, value, rateInfo, onSettingsClick, isInputCurrency }) => {
   const formattedValue = value !== null ? formatNumberForDisplay(value, 2, true) : '-.--';
 
-  const valueFontSize = formattedValue.length > 15 ? (formattedValue.length > 22 ? 'text-base' : 'text-lg') : 'text-xl';
+  /* const valueFontSize = formattedValue.length > 15 ? (formattedValue.length > 22 ? 'text-base' : 'text-lg') : 'text-xl'; */
   
   return (
-    <div className="space-y-1 p-1 flex-1">
+    <div className={`${styles.outputContainer} space-y-1 `}>
       <div className={`${styles.outputCard} rounded-lg shadow transition-all duration-200 flex flex-col h-full justify-between px-2 ${isInputCurrency ? 'bg-indigo-100 dark:bg-indigo-900 border-2 border-indigo-400 dark:border-indigo-600' : 'bg-white dark:bg-slate-700'}`}>
         <div className="flex  justify-between items-center mb-0.5">
-          <span className={`${styles.outputLabel} text-xs sm:text-sm  font-medium text-slate-600 dark:text-slate-300`}>{CURRENCY_LABELS[currency]}</span>
+          <span className={`${styles.outputLabel} font-medium text-slate-600 dark:text-slate-300`}>{CURRENCY_LABELS[currency]}</span>
           {!isInputCurrency && (
             <button onClick={onSettingsClick} className="p-1 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400" aria-label={`Ajustar tasa para ${currency}`}>
-              <SettingsIcon className={`${styles.outputIcon} w-4 h-4 sm:w-5 sm:h-5 lg:w-16 lg:h-16 xl:w-17 xl:h-17 2xl:w-10 2xl:h-10`} />
+              <SettingsIcon className={`${styles.outputIcon}`} />
             </button>
           )}
         </div>
-        <div className={`${styles.outputValue} text-right font-mono ${valueFontSize} text-slate-800 dark:text-white mb-0.5 truncate`}>
+        <div className={`${styles.outputValue} text-right font-mono text-slate-800 dark:text-white truncate`}>
           {formattedValue}
         </div>
         {rateInfo && (
-          <div className={`${styles.outputRateInfo} text-xs text-right text-slate-500 dark:text-slate-400 pt-0.5`}>
+          <div className={`${styles.outputRateInfo} text-xs text-right text-slate-500 dark:text-slate-400`}>
             {rateInfo.source} - {rateInfo.pair}: {formatNumberForDisplay(rateInfo.value, 2, true)}
           </div>
         )}
         {value === null && !rateInfo?.value && !isInputCurrency && (
-          <div className="text-xs text-right text-red-500 dark:text-red-400 pt-0.5">
+          <div className="text-xs text-right text-red-500 dark:text-red-400">
             Tasa no disponible
           </div>
         )}

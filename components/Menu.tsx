@@ -7,6 +7,7 @@ import { LightModeIcon } from './icons/LightModeIcon';
 import { HistoryIcon } from './icons/HistoryIcon';
 import { InfoIcon } from './icons/InfoIcon';
 import { SyncIcon } from './icons/SyncIcon';
+import styles from './styles/component.module.css';
 
 
 interface MenuProps {
@@ -39,7 +40,7 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
     <div className="fixed inset-0 z-40">
       {/* Overlay */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ease-in-out"
+        className={`${styles.menuContainer} absolute inset-0 transition-opacity duration-300 ease-in-out`}
         onClick={onClose}
       ></div>
 

@@ -19,11 +19,13 @@ import { InstallPwaPrompt } from './components/InstallPwaPrompt';
 const preprocessPercentageExpression = (expression: string): string => {
   return expression.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g, '(($1)/100*($2))');
 };
+let isValueEqual = false;
+let isOperationNew = false;
 
 const App: React.FC = () => {
   const [input, setInput] = useState<string>('0');
   const [activeInputCurrency, setActiveInputCurrency] = useLocalStorage<Currency>('activeInputCurrency', 'VES');
-  
+
   const [appSettings, setAppSettings] = useLocalStorage<AppSettings>('appSettings', initialAppSettings);
   const [exchangeRateState, setExchangeRates] = useLocalStorage<ExchangeRateState>('exchangeRates', () => {
     const storedItem = localStorage.getItem('exchangeRates');
@@ -44,7 +46,7 @@ const App: React.FC = () => {
     return initialExchangeRateState;
   });
   const [history, setHistory] = useLocalStorage<HistoryEntry[]>('operationHistory', []);
-  
+
   const [activeView, setActiveView] = useState<ActiveView>('calculator');
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isUpdateAvailable, setIsUpdateAvailable] = useState<boolean>(false);
@@ -73,7 +75,7 @@ const App: React.FC = () => {
         } else {
             rateToUse = manualRate || officialRate;
         }
-        
+
         if (rateToUse) {
             rates[pairKey] = rateToUse;
         }
@@ -89,7 +91,7 @@ const App: React.FC = () => {
   useEffect(() => {
     setRateMatrix(getFullRateMatrix(activeRateData, exchangeRateState.officialRates));
   }, [activeRateData, exchangeRateState.officialRates]);
-  
+
   useEffect(() => {
     if (appSettings.darkMode) {
       document.documentElement.classList.add('dark');
@@ -121,9 +123,11 @@ const App: React.FC = () => {
     }
   }, [fetchAndUpdateCloudRates]);
 
+
+
   const addToHistory = useCallback((expression: string, rawResult: number) => {
     const effectiveResult = calculateEffectiveValue(rawResult, activeInputCurrency, appSettings);
-    
+
     const allResults: Record<Currency, number> = {} as Record<Currency, number>;
 
     CURRENCIES.forEach(currency => {
@@ -149,8 +153,9 @@ const App: React.FC = () => {
         timestamp: new Date().toISOString(),
     };
     setHistory(prev => [newEntry, ...prev.slice(0, 49)]);
+    isValueEqual = true;
+    isOperationNew = true;
   }, [activeInputCurrency, appSettings, rateMatrix, setHistory]);
-
   useEffect(() => {
     // Initial fetch on app load (silently)
     fetchAndUpdateCloudRates();
@@ -201,16 +206,16 @@ const App: React.FC = () => {
     setShowInstallPrompt(false);
   };
 
-
   const handleKeypadPress = (key: string) => {
     const lastChar = input[input.length - 1];
     const operators = ['+', '-', '*', '/', '%'];
+
 
     if (key === 'C') {
       setInput('0');
       setLastValidResult(0);
     } else if (key === '=') {
-      if (input === 'Error' || operators.includes(lastChar) || lastChar === '(' || input.endsWith(',')) {
+      if (input === 'Error' || operators.includes(lastChar) || lastChar === '(' || input.endsWith(',') || isValueEqual) {
         return;
       }
       try {
@@ -229,6 +234,7 @@ const App: React.FC = () => {
     } else if (key === '⌫') {
       if (input.length > 1 && input !== 'Error') {
         setInput(input.slice(0, -1));
+        isValueEqual = false;
       } else {
         setInput('0');
       }
@@ -242,6 +248,7 @@ const App: React.FC = () => {
             setInput(input.slice(0, -1) + key);
         } else if (lastChar !== '(' && !input.endsWith(',')) {
             setInput(input + key);
+            isValueEqual = false;
         }
     } else if (key === ',') {
         const segments = input.split(/[+\-*/%()]/);
@@ -254,10 +261,13 @@ const App: React.FC = () => {
     } else if (key === '(') {
         if (input === '0') {
             setInput('(');
+            isOperationNew = false;
         } else if (/\d$/.test(lastChar) || lastChar === ')') {
             setInput(input + '*(');
+            isOperationNew = false;
         } else if (operators.includes(lastChar) || lastChar === '(') {
             setInput(input + '(');
+            isOperationNew = false;
         }
     } else if (key === ')') {
         const openParenCount = (input.match(/\(/g) || []).length;
@@ -265,14 +275,19 @@ const App: React.FC = () => {
         if (openParenCount > closeParenCount && (/\d$/.test(lastChar) || lastChar === ')')) {
             setInput(input + ')');
         }
-    } else { 
+    } else {
         if (input === '0') {
             setInput(key);
+            isValueEqual = false;
         } else if (lastChar === ')') {
              setInput(input + '*' + key);
-        }
-        else {
+        } else if (isValueEqual && isOperationNew) {
+              setInput('' + key);
+              isOperationNew = false;
+              isValueEqual = false;
+        } else {
             setInput(input + key);
+            isValueEqual = false;
         }
     }
   };
@@ -308,7 +323,7 @@ const App: React.FC = () => {
       }
     } catch (e) { /* Keep last valid result if current input is invalid */ }
   }, [input]);
-  
+
   const handleOpenSettings = (outputCurrency: Currency) => {
     setEditingRateModalParams({ modalForInputCurrency: activeInputCurrency, modalForOutputCurrency: outputCurrency });
     setIsSettingsModalOpen(true);
@@ -340,21 +355,21 @@ const App: React.FC = () => {
 
   const renderCalculatorView = () => (
     <div className="flex flex-col flex-grow overflow-hidden">
-      
+
       <div className="mb-2 ml-1 mr-1 flex-shrink-0">
-        <InputDisplay 
-            value={input} 
+        <InputDisplay
+            value={input}
             onBackspace={() => handleKeypadPress('⌫')}
             activeInputCurrency={activeInputCurrency}
             onCurrencyChange={setActiveInputCurrency}
         />
       </div>
 
-      <div className="flex flex-col h-full  overflow-y-auto mx-2 mb-1 custom-scrollbar">
+      <div className="flex flex-col flex-shrink-0 overflow-y-auto mx-2 mb-1 custom-scrollbar">
           {CURRENCIES.map(currency => {
             let displayValue: number | null = null;
             let rateDisplayInfo: ConversionRateInfo | null = null;
-            
+
             if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
               const multiplier = rateMatrix[activeInputCurrency][currency].value;
               if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
@@ -364,7 +379,7 @@ const App: React.FC = () => {
             }
 
             if (currency === activeInputCurrency) {
-              displayValue = effectiveEvaluationResult; 
+              displayValue = effectiveEvaluationResult;
               rateDisplayInfo = {
                   pair: `${currency}/${currency}`,
                   value: 1,
@@ -372,7 +387,7 @@ const App: React.FC = () => {
                   isDirect: true,
               };
             }
-            
+
             return (
               <CurrencyOutput
                 key={currency}
@@ -385,8 +400,8 @@ const App: React.FC = () => {
             );
           })}
       </div>
-      
-      <div className="mx-2 mb-2 flex-shrink-0 pb-[env(safe-area-inset-bottom)]">
+
+      <div className="mx-2 mb-2 grid h-full  pb-[env(safe-area-inset-bottom)]">
         <Keypad onKeyPress={handleKeypadPress} />
       </div>
     </div>
@@ -399,20 +414,20 @@ const App: React.FC = () => {
                 Tasas de cambio actualizadas.
             </div>
         )}
-      <Header 
+      <Header
         onMenuToggle={() => setIsMenuOpen(true)}
         activeView={activeView}
         headerTitle={headerTitle}
         onNavigateBack={() => setActiveView('calculator')}
       />
-      
+
       {activeView === 'calculator' && renderCalculatorView()}
       {activeView === 'history' && <HistoryScreen history={history} clearHistory={() => setHistory([])} />}
       {activeView === 'about' && <AboutScreen />}
-      
-      <Menu 
-        isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
+
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
         appSettings={appSettings}
         onAppSettingsChange={setAppSettings}
         setActiveView={setActiveView}

@@ -6,6 +6,9 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
       base: './',
+      server: {
+        host: true,
+      },
       plugins: [
         tailwindcss(),
       ],

@@ -1,5 +1,7 @@
 
 import React from 'react';
+import { HeartIcon } from './icons/HeartIcon';
+import  CoffeeCupIcon  from './icons/CoffeeCupIcon';
 
 export const AboutScreen: React.FC = () => {
   return (
@@ -37,8 +39,8 @@ export const AboutScreen: React.FC = () => {
           
           <hr className="my-6 border-slate-300 dark:border-slate-700"/>
 
-          <div>
-            <p className="font-medium">Desarrollada con dedicación por:</p>
+          <div className="flex flex-col items-center">
+            <p className="font-medium flex items-end">Desarrollada con <HeartIcon className="w-5 h-5 "/> y <CoffeeCupIcon color="white" className="w-6 h-9 ml-2 mr-2 "/>por:</p>
             <p className="text-lg font-semibold text-indigo-700 dark:text-indigo-400 mt-1">Freddy Rujano</p>
             <p>La Grita - Táchira</p>
             <p>Venezuela</p>

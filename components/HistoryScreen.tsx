@@ -47,12 +47,12 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({ history, clearHist
                 >
                   {entry.expression}
                 </div>
-                <div className="font-semibold text-sm sm:text-base text-indigo-600 dark:text-indigo-400 leading-tight flex flex-wrap items-center">
+                <div className="font-semibold text-sm sm:text-base text-indigo-600 dark:text-indigo-400 leading-tight flex  items-center ">
                   <span className="font-normal text-slate-800 dark:text-slate-200 mr-2">=</span>
                   <div className="flex-1 flex flex-wrap">
                     {CURRENCIES.map((currency, index) => (
                       <React.Fragment key={currency}>
-                        <span className="inline-block whitespace-nowrap">
+                        <span className="break-all">
                           {formatNumberForDisplay(entry.results[currency] || 0, 2, true)}
                           <span className="text-sm font-normal ml-1 text-slate-600 dark:text-slate-300">{CURRENCY_SYMBOLS[currency]}</span>
                         </span>

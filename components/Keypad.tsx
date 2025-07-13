@@ -26,14 +26,14 @@ const getAriaLabelForKey = (key: string): string => {
 
 export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
   return (
-    <div className="grid grid-cols-4 gap-0.5 p-1 bg-slate-300 dark:bg-slate-800 shadow-inner" role="grid">
+    <div className="grid grid-cols-4 auto-rows-fr gap-0.5 p-1 bg-slate-300 dark:bg-slate-800 shadow-inner" role="grid">
       {KEYPAD_LAYOUT.flat().map((key) => {
         const isOperator = ['/', '*', '-', '+', '%'].includes(key);
         const isEqual = key === '=';
         const isClear = key === 'C';
         const isSpecialFn = ['(', ')'].includes(key);
 
-        let buttonClass = "text-lg sm:text-xl font-medium rounded-sm shadow-sm active:scale-95 transform-gpu transition-all duration-100 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-300 dark:focus-visible:ring-offset-slate-800";
+        let buttonClass = "font-medium rounded-sm shadow-sm active:scale-95 transform-gpu transition-all duration-100 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-300 dark:focus-visible:ring-offset-slate-800";
 
         if (isEqual) {
           buttonClass += "bg-indigo-600 active:bg-indigo-600 text-white dark:bg-indigo-600 col-span-1 focus-visible:ring-indigo-500";
