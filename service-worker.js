@@ -47,11 +47,11 @@ var URLS_TO_CACHE = [
     './index.html',
     './manifest.json',
     './index.css',
-    /*'https://cdn.tailwindcss.com',*/
+    /*'https://cdn.tailwindcss.com',
     'https://esm.sh/react@^19.1.0',
     'https://esm.sh/react-dom@^19.1.0/client',
     'https://esm.sh/mathjs@^14.5.2',
-    'https://esm.sh/react-transition-group@^4.4.5',
+    'https://esm.sh/react-transition-group@^4.4.5',*/
     'icon-192.png',
     'icon-512.png',
 ];
