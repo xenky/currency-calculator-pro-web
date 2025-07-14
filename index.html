@@ -11,10 +11,10 @@
     <meta name="MobileOptimized" content="width"/>
     <meta name="HandheldFriendly" content="true"/>
     <!-- add to homescreen for ios -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Ionic App" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <link rel="shorcut icon" type="image/png" href="/currency-calculator-pro-web/assets/img/calculator.png"/>
+    <link rel="shorcut icon" type="image/png" href="./assets/calculator-h6non9AI.png"/>
     <link rel="apple-touch-icon" href="/currency-calculator-pro-web/assets/img/icon-192.png"/>
 
     <!-- <script>
@@ -86,7 +86,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/currency-calculator-pro-web/service-worker.ts')
+          navigator.serviceWorker.register('/currency-calculator-pro-web/service-worker.js')
             .then(registration => {
               console.log('ServiceWorker registration successful with scope: ', registration.scope);
               // Attempt to register for periodic background sync
