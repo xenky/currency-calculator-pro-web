@@ -2,9 +2,8 @@
   "name": "Calculadora de Divisas",
   "short_name": "Calculadora de Divisas",
   "description": "Una calculadora de divisas basada en React y Tailwind CSS con conversión en tiempo real, ajustes de tasa manuales e historial.",
-  "id": "./https://xenky.github.io/currency-calculator-pro-web/?utm_source=web_app_manifest",
-  "start_url": "./https://xenky.github.io/currency-calculator-pro-web/?utm_source=web_app_manifest",
-  "scope": "./https://xenky.github.io/currency-calculator-pro-web/",
+  "start_url": "/currency-calculator-pro-web/",
+  "scope": "/currency-calculator-pro-web/",
   "display": "standalone",
   "background_color": "#e2e8f0",
   "theme_color": "#4f46e5",
@@ -12,17 +11,17 @@
   "lang": "es-VE",
   "icons": [
     {
-      "src": "./assets/img/icon-192.png",
+      "src": "/currency-calculator-pro-web/assets/img/icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "./assets/img/icon-256.png",
+      "src": "/currency-calculator-pro-web/assets/img/icon-256.png",
       "type": "image/png",
       "sizes": "256x256"
     },
     {
-      "src": "./assets/img/icon-512.png",
+      "src": "/currency-calculator-pro-web/assets/img/icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
