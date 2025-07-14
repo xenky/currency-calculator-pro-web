@@ -52,8 +52,8 @@ var URLS_TO_CACHE = [
     'https://esm.sh/react-dom@^19.1.0/client',
     'https://esm.sh/mathjs@^14.5.2',
     'https://esm.sh/react-transition-group@^4.4.5',
-    'img/icon-192.png',
-    'img/icon-512.png',
+    '/img/icon-192.png',
+    '/img/icon-512.png',
 ];
 // --- Lifecycle Events ---
 sw.addEventListener('install', function (event) {
