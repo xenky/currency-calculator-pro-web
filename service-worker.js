@@ -45,7 +45,7 @@ var RATES_API_URL = 'https://raw.githubusercontent.com/xenky/exchange_rates/main
 var URLS_TO_CACHE = [
     './',
     './index.html',
-    './manifest.json',
+    './assets/manifest.json',
     './index.css',
     /*'https://cdn.tailwindcss.com',*/
     'https://esm.sh/react@^19.1.0',
