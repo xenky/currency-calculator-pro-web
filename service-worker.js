@@ -81,11 +81,21 @@ sw.addEventListener('activate', function (event) {
     }).then(function () { return sw.clients.claim(); }));
 });
 // --- Rate Fetching Logic ---
+let lastRatesFetch = 0;
+const ONE_HOUR = 3600000;
+
 var fetchAndCacheRates = function () { return __awaiter(_this, void 0, void 0, function () {
-    var response, cache, error_1;
+    var now, response, cache, error_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                now = Date.now();
+                if (now - lastRatesFetch < ONE_HOUR) {
+                    // Si la última actualización fue hace menos de 1 hora, no hacer nada
+                    console.log('Service Worker: Rates fetched recently, skipping fetch.');
+                    return [2 /*return*/, caches.match(RATES_API_URL)];
+                }
+                lastRatesFetch = now;
                 console.log('Service Worker: Fetching latest rates from network...');
                 _a.label = 1;
             case 1:
