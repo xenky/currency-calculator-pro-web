@@ -11,17 +11,17 @@
   "lang": "es-VE",
   "icons": [
     {
-      "src": "/currency-calculator-pro-web/img/icon-192.png",
+      "src": "/img/icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/currency-calculator-pro-web/img/icon-256.png",
+      "src": "/img/icon-256.png",
       "type": "image/png",
       "sizes": "256x256"
     },
     {
-      "src": "/currency-calculator-pro-web/img/icon-512.png",
+      "src": "/img/icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
