@@ -14,16 +14,6 @@ export const AboutScreen: React.FC = () => {
         <div className="text-sm sm:text-base text-slate-700 dark:text-slate-300 space-y-4">
           <p className="font-semibold text-lg">Versión: 1.0.0</p>
           <p>Esta aplicación es una calculadora de divisas moderna y fácil de usar, construida con las últimas tecnologías web para ofrecer una experiencia fluida y eficiente.</p>
-          
-          <div>
-            <h3 className="font-semibold text-md text-indigo-600 dark:text-indigo-400 mb-1">Tecnologías Utilizadas:</h3>
-            <ul className="list-disc list-inside ml-4 space-y-1">
-              <li>React (para la interfaz de usuario dinámica)</li>
-              <li>Tailwind CSS (para un diseño estilizado y responsivo)</li>
-              <li>Math.js (para la evaluación de expresiones matemáticas)</li>
-              <li>TypeScript (para un desarrollo robusto y tipado)</li>
-            </ul>
-          </div>
 
           <div>
             <h3 className="font-semibold text-md text-indigo-600 dark:text-indigo-400 mb-1">Funcionalidades Destacadas:</h3>

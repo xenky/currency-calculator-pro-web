@@ -4,18 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Currency Calculator Pro</title>
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#4f46e5" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="MobileOptimized" content="width"/>
     <meta name="HandheldFriendly" content="true"/>
     <!-- add to homescreen for ios -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Ionic App" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <link rel="shorcut icon" type="image/png" href="./assets/img/calculator.png"/>
-    <link rel="apple-touch-icon" href="./assets/img/icon-192.png"/>
+    <link rel="shorcut icon" type="image/png" href="/img/calculator.png"/>
+    <link rel="apple-touch-icon" href="/currency-calculator-pro-web/img/icon-192.png"/>
     <link rel="stylesheet" href="app.css"/>
 
     <!-- <script>
@@ -85,7 +85,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./service-worker.ts')
+          navigator.serviceWorker.register('/currency-calculator-pro-web/service-worker.js')
             .then(registration => {
               console.log('ServiceWorker registration successful with scope: ', registration.scope);
               // Attempt to register for periodic background sync
