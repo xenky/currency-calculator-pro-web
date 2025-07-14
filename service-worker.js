@@ -47,7 +47,7 @@ var URLS_TO_CACHE = [
     './index.html',
     './manifest.json',
     './index.css',
-    'https://cdn.tailwindcss.com',
+    /*'https://cdn.tailwindcss.com',*/
     'https://esm.sh/react@^19.1.0',
     'https://esm.sh/react-dom@^19.1.0/client',
     'https://esm.sh/mathjs@^14.5.2',
