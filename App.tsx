@@ -30,18 +30,18 @@ const App: React.FC = () => {
   const [exchangeRateState, setExchangeRates] = useLocalStorage<ExchangeRateState>('exchangeRates', () => {
     const storedItem = localStorage.getItem('exchangeRates');
     if (storedItem) {
-        try {
-            const parsed = JSON.parse(storedItem);
-            if (parsed && typeof parsed.officialRates === 'object' && typeof parsed.manualRates === 'object') {
-                return {
-                    ...initialExchangeRateState, // Start with defaults
-                    ...parsed, // Override with stored values
-                    preferredRateTypes: parsed.preferredRateTypes || {},
-                };
-            }
-        } catch (e) {
-            console.warn("Failed to parse exchange rates from localStorage, using initial values.", e);
+      try {
+        const parsed = JSON.parse(storedItem);
+        if (parsed && typeof parsed.officialRates === 'object' && typeof parsed.manualRates === 'object') {
+          return {
+            ...initialExchangeRateState, // Start with defaults
+            ...parsed, // Override with stored values
+            preferredRateTypes: parsed.preferredRateTypes || {},
+          };
         }
+      } catch (e) {
+        console.warn("Failed to parse exchange rates from localStorage, using initial values.", e);
+      }
     }
     return initialExchangeRateState;
   });
@@ -57,28 +57,28 @@ const App: React.FC = () => {
   const activeRateData = useMemo(() => {
     const rates: AllExchangeRates = {};
     const allKnownPairs = new Set([
-        ...Object.keys(exchangeRateState.officialRates),
-        ...Object.keys(exchangeRateState.manualRates)
+      ...Object.keys(exchangeRateState.officialRates),
+      ...Object.keys(exchangeRateState.manualRates)
     ]);
 
     for (const pairKey of allKnownPairs) {
-        const preferredType = exchangeRateState.preferredRateTypes[pairKey];
-        const manualRate = exchangeRateState.manualRates[pairKey];
-        const officialRate = exchangeRateState.officialRates[pairKey];
+      const preferredType = exchangeRateState.preferredRateTypes[pairKey];
+      const manualRate = exchangeRateState.manualRates[pairKey];
+      const officialRate = exchangeRateState.officialRates[pairKey];
 
-        let rateToUse: RateEntry | undefined = undefined;
+      let rateToUse: RateEntry | undefined = undefined;
 
-        if (preferredType === 'manual' && manualRate) {
-            rateToUse = manualRate;
-        } else if (preferredType === 'oficial') {
-            rateToUse = officialRate;
-        } else {
-            rateToUse = manualRate || officialRate;
-        }
+      if (preferredType === 'manual' && manualRate) {
+        rateToUse = manualRate;
+      } else if (preferredType === 'oficial') {
+        rateToUse = officialRate;
+      } else {
+        rateToUse = manualRate || officialRate;
+      }
 
-        if (rateToUse) {
-            rates[pairKey] = rateToUse;
-        }
+      if (rateToUse) {
+        rates[pairKey] = rateToUse;
+      }
     }
     return rates;
   }, [exchangeRateState.officialRates, exchangeRateState.manualRates, exchangeRateState.preferredRateTypes]);
@@ -87,6 +87,8 @@ const App: React.FC = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [editingRateModalParams, setEditingRateModalParams] = useState<{ modalForInputCurrency: Currency, modalForOutputCurrency: Currency } | null>(null);
   const [lastValidResult, setLastValidResult] = useState<number>(0);
+  const [ratesLastUpdateDate, setRatesLastUpdateDate] = useState<string | null>(null);
+
 
   useEffect(() => {
     setRateMatrix(getFullRateMatrix(activeRateData, exchangeRateState.officialRates));
@@ -104,6 +106,7 @@ const App: React.FC = () => {
     try {
       const cloudData = await fetchOfficialRates();
       console.log('New rates fetched, updating state...');
+      setRatesLastUpdateDate(cloudData.date);
       setExchangeRates(prev => {
         const updatedOfficialRates = parseAndApplyFetchedRates(cloudData, prev.officialRates);
         return { ...prev, officialRates: updatedOfficialRates, lastCloudFetchDate: cloudData.date };
@@ -131,26 +134,26 @@ const App: React.FC = () => {
     const allResults: Record<Currency, number> = {} as Record<Currency, number>;
 
     CURRENCIES.forEach(currency => {
-        if (currency === activeInputCurrency) {
-            allResults[currency] = effectiveResult;
-        } else if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
-            const multiplier = rateMatrix[activeInputCurrency][currency].value;
-            if (multiplier && isFinite(effectiveResult)) {
-                allResults[currency] = effectiveResult * multiplier;
-            } else {
-                allResults[currency] = 0;
-            }
+      if (currency === activeInputCurrency) {
+        allResults[currency] = effectiveResult;
+      } else if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
+        const multiplier = rateMatrix[activeInputCurrency][currency].value;
+        if (multiplier && isFinite(effectiveResult)) {
+          allResults[currency] = effectiveResult * multiplier;
         } else {
-            allResults[currency] = 0;
+          allResults[currency] = 0;
         }
+      } else {
+        allResults[currency] = 0;
+      }
     });
 
     const newEntry: HistoryEntry = {
-        id: Date.now(),
-        expression: expression,
-        results: allResults,
-        inputCurrency: activeInputCurrency,
-        timestamp: new Date().toISOString(),
+      id: Date.now(),
+      expression: expression,
+      results: allResults,
+      inputCurrency: activeInputCurrency,
+      timestamp: new Date().toISOString(),
     };
     setHistory(prev => [newEntry, ...prev.slice(0, 49)]);
     isValueEqual = true;
@@ -214,6 +217,11 @@ const App: React.FC = () => {
     if (key === 'C') {
       setInput('0');
       setLastValidResult(0);
+    } else if (key === '-' && input === '0') {
+      setInput(key);
+      isValueEqual = false;
+    } else if (key === '-' && lastChar === '(') {
+      setInput(input + key);
     } else if (key === '=') {
       if (input === 'Error' || operators.includes(lastChar) || lastChar === '(' || input.endsWith(',') || isValueEqual) {
         return;
@@ -239,56 +247,58 @@ const App: React.FC = () => {
         setInput('0');
       }
     } else if (input === 'Error') {
-        setInput(key === ',' ? '0,' : key);
+      setInput(key === ',' ? '0,' : key);
     } else if (operators.includes(key)) {
-        if (input === '0' && key !== '-' && key !== '%') {
-             return;
+      if (input === '0' && key !== '-' && key !== '%') {
+        return;
+      }
+      if (operators.includes(lastChar)) {
+        if (lastChar === '-' && input.length === 1 || lastChar === '-' && input[input.length - 2] === '(') {
+          return;
+        } else {  
+          setInput(input.slice(0, -1) + key);
         }
-        if (operators.includes(lastChar)) {
-            setInput(input.slice(0, -1) + key);
-        } else if (lastChar !== '(' && !input.endsWith(',')) {
-            setInput(input + key);
-            isValueEqual = false;
-        }
+      } else if (lastChar !== '(' && !input.endsWith(',')) {
+        setInput(input + key);
+        isValueEqual = false;
+      }
     } else if (key === ',') {
-        const segments = input.split(/[+\-*/%()]/);
-        const currentNumberSegment = segments.pop() || "";
-        if (!currentNumberSegment.includes(',') && (/\d$/.test(lastChar) || input === '0')) {
-            setInput(input + ',');
-        } else if (input === "") {
-             setInput('0,');
-        }
-    } else if (key === '(') {
-        if (input === '0') {
-            setInput('(');
-            isOperationNew = false;
-        } else if (/\d$/.test(lastChar) || lastChar === ')') {
-            setInput(input + '*(');
-            isOperationNew = false;
-        } else if (operators.includes(lastChar) || lastChar === '(') {
-            setInput(input + '(');
-            isOperationNew = false;
-        }
-    } else if (key === ')') {
-        const openParenCount = (input.match(/\(/g) || []).length;
-        const closeParenCount = (input.match(/\)/g) || []).length;
-        if (openParenCount > closeParenCount && (/\d$/.test(lastChar) || lastChar === ')')) {
-            setInput(input + ')');
-        }
+      const segments = input.split(/[+\-*/%()]/);
+      const currentNumberSegment = segments.pop() || "";
+      if (!currentNumberSegment.includes(',') && (/\d$/.test(lastChar) || input === '0')) {
+        setInput(input + ',');
+      } else if (input === "") {
+        setInput('0,');
+      }
+    } else if (key === '( )') {
+      const openParenCount = (input.match(/\(/g) || []).length;
+      const closeParenCount = (input.match(/\)/g) || []).length;
+      if (input === '0') {
+        setInput('(');
+        isOperationNew = false;
+      } else if (openParenCount > closeParenCount && (/\d$/.test(lastChar) || lastChar === ')')) {
+        setInput(input + ')');
+      } else if (/\d$/.test(lastChar) || lastChar === ')') {
+        setInput(input + '*(');
+        isOperationNew = false;
+      } else if (operators.includes(lastChar)) {
+        setInput(input + '(');
+        isOperationNew = false;
+      }
     } else {
-        if (input === '0') {
-            setInput(key);
-            isValueEqual = false;
-        } else if (lastChar === ')') {
-             setInput(input + '*' + key);
-        } else if (isValueEqual && isOperationNew) {
-              setInput('' + key);
-              isOperationNew = false;
-              isValueEqual = false;
-        } else {
-            setInput(input + key);
-            isValueEqual = false;
-        }
+      if (input === '0') {
+        setInput(key);
+        isValueEqual = false;
+      } else if (lastChar === ')') {
+        setInput(input + '*' + key);
+      } else if (isValueEqual && isOperationNew) {
+        setInput('' + key);
+        isOperationNew = false;
+        isValueEqual = false;
+      } else {
+        setInput(input + key);
+        isValueEqual = false;
+      }
     }
   };
 
@@ -298,20 +308,20 @@ const App: React.FC = () => {
       return;
     }
     const lastChar = input[input.length - 1];
-    if (['+', '-', '*', '/', '%', '('].includes(lastChar) ) {
-        const evalInputBeforeOperator = input.slice(0, -1);
-        if (evalInputBeforeOperator === "" || ['+', '-', '*', '/', '%', '('].includes(evalInputBeforeOperator[evalInputBeforeOperator.length -1])) {
-            return;
-        }
-         try {
-            let sanitizedInputBeforeOperator = evalInputBeforeOperator.replace(/\./g, '').replace(/,/g, '.');
-            sanitizedInputBeforeOperator = preprocessPercentageExpression(sanitizedInputBeforeOperator);
-            const result = evaluate(sanitizedInputBeforeOperator);
-            if (!isNaN(result) && isFinite(result)) {
-              setLastValidResult(result);
-            }
-        } catch (e) { /* Keep last valid result if intermediate step is bad */ }
+    if (['+', '-', '*', '/', '%', '('].includes(lastChar)) {
+      const evalInputBeforeOperator = input.slice(0, -1);
+      if (evalInputBeforeOperator === "" || ['+', '-', '*', '/', '%', '('].includes(evalInputBeforeOperator[evalInputBeforeOperator.length - 1])) {
         return;
+      }
+      try {
+        let sanitizedInputBeforeOperator = evalInputBeforeOperator.replace(/\./g, '').replace(/,/g, '.');
+        sanitizedInputBeforeOperator = preprocessPercentageExpression(sanitizedInputBeforeOperator);
+        const result = evaluate(sanitizedInputBeforeOperator);
+        if (!isNaN(result) && isFinite(result)) {
+          setLastValidResult(result);
+        }
+      } catch (e) { /* Keep last valid result if intermediate step is bad */ }
+      return;
     }
 
     try {
@@ -354,54 +364,56 @@ const App: React.FC = () => {
   else if (activeView === 'about') headerTitle = "Acerca de la Aplicación";
 
   const renderCalculatorView = () => (
-    <div className="flex flex-col flex-grow overflow-hidden">
+    <div className="flex flex-col flex-grow overflow-hidden mt-1">
+      <div className="flex flex-col flex-shrink-0 mx-2 mb-1 ">
+        {CURRENCIES.map(currency => {
+          let displayValue: number | null = null;
+          let rateDisplayInfo: ConversionRateInfo | null = null;
 
-      <div className="mb-2 ml-1 mr-1 flex-shrink-0">
-        <InputDisplay
-            value={input}
-            onBackspace={() => handleKeypadPress('⌫')}
-            activeInputCurrency={activeInputCurrency}
-            onCurrencyChange={setActiveInputCurrency}
-        />
-      </div>
+          if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
+            const multiplier = rateMatrix[activeInputCurrency][currency].value;
+            if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
+              displayValue = effectiveEvaluationResult * multiplier;
+            }
+            rateDisplayInfo = getRateDisplayInfo(activeInputCurrency, currency, activeRateData, rateMatrix);
+          }
 
-      <div className="flex flex-col flex-shrink-0 overflow-y-auto mx-2 mb-1 custom-scrollbar">
-          {CURRENCIES.map(currency => {
-            let displayValue: number | null = null;
-            let rateDisplayInfo: ConversionRateInfo | null = null;
+          if (currency === activeInputCurrency) {
+            displayValue = effectiveEvaluationResult;
+            rateDisplayInfo = {
+              pair: `${currency}/${currency}`,
+              value: 1,
+              source: 'System',
+              isDirect: true,
+            };
+          }
 
-            if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
-              const multiplier = rateMatrix[activeInputCurrency][currency].value;
-              if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
-                 displayValue = effectiveEvaluationResult * multiplier;
+          const isInput = currency === activeInputCurrency;
+
+          return (
+            <CurrencyOutput
+              key={currency}
+              currency={currency}
+              value={isInput ? lastValidResult : displayValue}
+              rateInfo={rateDisplayInfo}
+              onSettingsClick={() => handleOpenSettings(currency)}
+              isInputCurrency={isInput}
+              onCurrencySelect={setActiveInputCurrency}
+              inputDisplayComponent={
+                isInput ? (
+                  <InputDisplay
+                    value={input}
+                    activeInputCurrency={activeInputCurrency}
+                    evaluationResult={lastValidResult}
+                  />
+                ) : undefined
               }
-               rateDisplayInfo = getRateDisplayInfo(activeInputCurrency, currency, activeRateData, rateMatrix);
-            }
-
-            if (currency === activeInputCurrency) {
-              displayValue = effectiveEvaluationResult;
-              rateDisplayInfo = {
-                  pair: `${currency}/${currency}`,
-                  value: 1,
-                  source: 'System',
-                  isDirect: true,
-              };
-            }
-
-            return (
-              <CurrencyOutput
-                key={currency}
-                currency={currency}
-                value={displayValue}
-                rateInfo={rateDisplayInfo}
-                onSettingsClick={() => handleOpenSettings(currency)}
-                isInputCurrency={currency === activeInputCurrency}
-              />
-            );
-          })}
+            />
+          );
+        })}
       </div>
 
-      <div className="mx-2 mb-2 grid h-full  pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-2 mb-2 grid h-full pb-[env(safe-area-inset-bottom)]">
         <Keypad onKeyPress={handleKeypadPress} />
       </div>
     </div>
@@ -409,11 +421,11 @@ const App: React.FC = () => {
 
   return (
     <div className="relative flex flex-col h-screen max-w-md mx-auto bg-slate-200 dark:bg-slate-900 shadow-lg font-sans">
-        {isUpdateAvailable && (
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
-                Tasas de cambio actualizadas.
-            </div>
-        )}
+      {isUpdateAvailable && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
+          Tasas de cambio actualizadas.
+        </div>
+      )}
       <Header
         onMenuToggle={() => setIsMenuOpen(true)}
         activeView={activeView}
@@ -448,6 +460,7 @@ const App: React.FC = () => {
           onSetPreferredRateType={handleSetPreferredRateType}
           appSettings={appSettings}
           onAppSettingsChange={setAppSettings}
+          lastUpdateDate={ratesLastUpdateDate}
         />
       )}
 

@@ -12,7 +12,7 @@ export const AboutScreen: React.FC = () => {
         </h2>
         
         <div className="text-sm sm:text-base text-slate-700 dark:text-slate-300 space-y-4">
-          <p className="font-semibold text-lg">Versión: 1.0.0</p>
+          <p className="font-semibold text-lg">Versión: 1.1.0</p>
           <p>Esta aplicación es una calculadora de divisas moderna y fácil de usar, construida con las últimas tecnologías web para ofrecer una experiencia fluida y eficiente.</p>
 
           <div>

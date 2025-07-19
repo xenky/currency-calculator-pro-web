@@ -21,16 +21,84 @@ interface SettingsModalProps {
   onSetPreferredRateType: (pairKey: string, type: 'oficial' | 'manual') => void;
   appSettings: AppSettings;
   onAppSettingsChange: (settings: AppSettings) => void;
+  lastUpdateDate: string | null;
 }
 
 type RateTypeSelection = 'Oficial' | 'Manual';
+
+const formatVenezuelanDate = (utcDateString: string | null): string => {
+  if (!utcDateString) return 'No disponible';
+
+  try {
+    // Formato esperado: "DD/MM/YYYY HH:mm AM/PM"
+    const parts = utcDateString.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{1,2}):(\d{2}) (AM|PM)/i);
+
+    if (!parts) {
+      // Fallback por si el formato cambia a uno estándar en el futuro
+      const fallbackDate = new Date(utcDateString);
+      if (isNaN(fallbackDate.getTime())) {
+        throw new Error('Invalid date format after fallback');
+      }
+      fallbackDate.setHours(fallbackDate.getHours() - 4);
+      const formatted = fallbackDate.toLocaleString('es-VE', { 
+        year: '2-digit', 
+        month: 'numeric', 
+        day: 'numeric', 
+        hour: 'numeric', 
+        minute: '2-digit', 
+        hour12: true 
+      });
+      // Corrige el formato de "p. m." a "p.m."
+      return formatted.replace(/\. /g, '.');
+    }
+
+    const [, dayStr, monthStr, yearStr, hourStr, minuteStr, ampm] = parts;
+    const day = parseInt(dayStr, 10);
+    const month = parseInt(monthStr, 10);
+    const year = parseInt(yearStr, 10);
+    let hours = parseInt(hourStr, 10);
+    const minutes = parseInt(minuteStr, 10);
+
+    if (ampm.toLowerCase() === 'pm' && hours < 12) {
+      hours += 12;
+    }
+    if (ampm.toLowerCase() === 'am' && hours === 12) { // Caso de medianoche (12 AM)
+      hours = 0;
+    }
+
+    // Crear la fecha en UTC. El mes en JS es 0-indexado.
+    const date = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+
+    // Restar 4 horas para ajustar de UTC a VET (UTC-4)
+    date.setUTCHours(date.getUTCHours() - 4);
+
+    // Formatear la fecha manualmente para asegurar el formato exacto
+    const finalDay = date.getUTCDate();
+    const finalMonth = date.getUTCMonth() + 1;
+    const finalYear = date.getUTCFullYear().toString().slice(-2);
+    let finalHours = date.getUTCHours();
+    const finalMinutes = date.getUTCMinutes();
+    const finalAmpm = finalHours >= 12 ? 'p.m.' : 'a.m.';
+
+    finalHours = finalHours % 12;
+    finalHours = finalHours || 12; // La hora 0 debe ser 12
+
+    const formattedMinutes = finalMinutes < 10 ? '0' + finalMinutes : finalMinutes;
+
+    return `${finalDay}/${finalMonth}/${finalYear}, ${finalHours}:${formattedMinutes} ${finalAmpm}`;
+
+  } catch (error) {
+    console.error("Error formatting date:", error, "Input was:", utcDateString);
+    return 'Fecha inválida';
+  }
+};
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ 
     isOpen, onClose, modalForInputCurrency, modalForOutputCurrency, 
     officialRatesData, manualRatesData, preferredRateTypes,
     rateMatrix,
     onSaveManualRate, onSetPreferredRateType,
-    appSettings, onAppSettingsChange 
+    appSettings, onAppSettingsChange, lastUpdateDate
 }) => {
   const [manualRateInput, setManualRateInput] = useState<string>('0,00');
   const [rateTypeSelection, setRateTypeSelection] = useState<RateTypeSelection>('Oficial');
@@ -88,7 +156,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     if (rateTypeSelection !== 'Manual') return;
     setErrorMessage(null); 
 
-    if (key === '⌫') {
+    if (key === 'C') {
+      setManualRateInput('0');
+    } else if (key === '⌫') {
       setManualRateInput(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
     } else if (key === ',') {
       if (!manualRateInput.includes(',')) {
@@ -186,6 +256,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="mb-4 p-3 bg-slate-100 dark:bg-slate-700 rounded">
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tasa Automática Registrada:</p>
               <p className="text-md sm:text-lg font-semibold text-indigo-600 dark:text-indigo-400">{automaticRateDisplayString}</p>
+              <hr className="my-2 border-slate-200 dark:border-slate-600" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 text-right">Última actualización: {formatVenezuelanDate(lastUpdateDate)}</p>
           </div>
 
           <div className="mb-4">
@@ -223,19 +295,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
           </div>
           
-          {rateTypeSelection === 'Manual' && (
-          <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-               Establecer Tasa Manual: 1 {CURRENCY_LABELS_SINGULAR[displayBase]} ({displayBase}) = 
-              </label>
-              <div className={`w-full p-2 border ${errorMessage && rateTypeSelection === 'Manual' ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} rounded bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-right text-xl h-10 flex items-center justify-end`}>
-                {manualRateInput} 
-                <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">{CURRENCY_LABELS[displayQuote]} ({displayQuote})</span>
-              </div>
-              {errorMessage && rateTypeSelection === 'Manual' && <p className="text-xs text-red-500 mt-1">{errorMessage}</p>}
-              <NumericInputKeypad onKeyPress={handleNumericKeypadPress} />
+          {/* Manual Rate Section with Animation */}
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${rateTypeSelection === 'Manual' ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="mb-4 pt-4">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Establecer Tasa Manual: 1 {CURRENCY_LABELS_SINGULAR[displayBase]} ({displayBase}) = 
+                </label>
+                <div className={`w-full p-2 border ${errorMessage && rateTypeSelection === 'Manual' ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'} rounded bg-white dark:bg-slate-700 text-slate-800 dark:text-white text-right text-xl h-10 flex items-center justify-end`}>
+                  {manualRateInput} 
+                  <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">{CURRENCY_LABELS[displayQuote]} ({displayQuote})</span>
+                </div>
+                {errorMessage && rateTypeSelection === 'Manual' && <p className="text-xs text-red-500 mt-1">{errorMessage}</p>}
+                <NumericInputKeypad onKeyPress={handleNumericKeypadPress} />
+            </div>
           </div>
-          )}
 
           { (modalForInputCurrency === 'COP' || modalForOutputCurrency === 'COP') && (
           <div className="mb-4 p-3 border border-dashed border-slate-300 dark:border-slate-600 rounded">

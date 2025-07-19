@@ -3,21 +3,29 @@
     opacity: 70%;
 }
 
-.inputScrollBar {
-    scrollbar-width: thin;
+.opacityMedium {
+    opacity: 70%;
+}
+
+.opacityCero {
+    opacity: 0;
 }
 
 .inputContainer {
-    padding: 4px;
-} 
+    margin-top: 3.5px;
+    margin-bottom: 4px;
+}
 
-.inputCurrency {
-    padding: 4px 0px;
+.inputScrollBar {
+    scrollbar-width: none;
+}
+
+.inputLabel {
     font-size: 14px;
 }
 
 .inputValue {
-    padding: 8px 0px;
+    margin-bottom: -6px;
     font-size: 36px;
 }
 
@@ -27,15 +35,6 @@
 
 .inputValue3 {
     font-size: 26px;
-}
-
-.inputContentButton {
-    padding: 0px 12px;
-}
-
-.inputButton {
-    width: 40px;
-    height: 40px;
 }
 
 .outputContainer {
@@ -49,11 +48,6 @@
 
 .outputLabel {
     font-size: 14px;
-}
-
-.outputIcon {
-    width: 20px;
-    height: 20px;
 }
 
 .outputValue {
@@ -74,24 +68,33 @@
 
 
 @media (max-height: 599px) {
-    .inputCurrency {
+
+    .inputScrollBar {
+        scrollbar-width: thin;
+    }
+
+    .inputContainer {
+        /*background-color: #4F46E5; /* slate-600 */
+        /* background-color: #4338CA; */
+        /* slate-700 */
+        background-color: #3730A3; /* slate-800
+        /*background-color: #312E81; /* slate-900 */
+        margin-top: 1.5px;
+        margin-bottom: 1.5px;
+    }
+
+    .inputLabel {
         font-size: 12px;
-        margin-bottom: -8px;
     }
 
     .inputValue {
-        margin-top: 0;
-        padding-top: 1px;
-        font-size: 20px;
+        margin-bottom: 0px;
+        padding-top: 0px;
+        font-size: 22px;
     }
 
-    .inputContentButton {
-        margin-top: -4px;
-    }
-
-    .inputButton {
-        width: 30px;
-        height: 30px;
+    .inputResult {
+        font-size: 16px;
     }
 
     .keypadButton {
@@ -99,7 +102,7 @@
     }
 
     .outputContainer {
-        padding: 1.5px 4px;
+        padding: 2.5px 4px;
     }
 
     .outputCard {
@@ -108,31 +111,22 @@
     }
 
     .outputLabel {
-        font-size: 8px;
-    }
-
-    .outputIcon {
-        width: 12px;
-        height: 12px;
+        font-size: 10px;
     }
 
     .outputValue {
-        font-size: 14px;
+        font-size: 16px;
         margin-top: -3px;
         margin-bottom: -2px;
 
     }
 
     .outputRateInfo {
-        font-size: 7px;
+        font-size: 9px;
     }
 }
 
 @media (min-height: 600px) and (max-height: 700px) {
-
-    .inputCurrency {
-        margin-bottom: -8px;
-    }
 
     .inputValue {
         margin-top: 0;
@@ -152,15 +146,6 @@
         font-size: 18px;
     }
 
-    .inputContentButton {
-        padding-bottom: 8px;
-    }
-
-    .inputButton {
-        width: 30px;
-        height: 30px;
-    }
-
     .outputContainer {
         padding: 2px 4px;
     }
@@ -172,11 +157,6 @@
 
     .outputLabel {
         font-size: 10px;
-    }
-
-    .outputIcon {
-        width: 14px;
-        height: 14px;
     }
 
     .outputValue {
@@ -193,15 +173,6 @@
 
 @media (min-height: 701px) and (max-height: 800px) {
 
-    .inputCurrency {
-        font-size: 14px;
-    }
-
-    .inputValue {
-        margin-top: 0;
-        padding-top: 1px;
-    }
-
     .inputValueFont {
         font-size: 32px;
     }
@@ -212,15 +183,6 @@
 
     .inputValueFont3 {
         font-size: 22px;
-    }
-
-    .inputContentButton {
-        padding-bottom: 10px;
-    }
-
-    .inputButton {
-        width: 30px;
-        height: 30px;
     }
 
     .outputContainer {
@@ -232,18 +194,8 @@
         padding-bottom: 2px;
     }
 
-    .outputCard {
-        padding-top: 2px;
-        padding-bottom: 2px;
-    }
-
     .outputLabel {
         font-size: 12px;
-    }
-
-    .outputIcon {
-        width: 17px;
-        height: 17px;
     }
 
     .outputRateInfo {
@@ -252,10 +204,6 @@
 }
 
 @media (min-height: 801px) and (max-height: 900px) {
-
-    .inputCurrency {
-        font-size: 14px;
-    }
 
     .inputValue {
         margin-top: 0;
@@ -274,15 +222,6 @@
         font-size: 22px;
     }
 
-    .inputContentButton {
-        padding-bottom: 10px;
-    }
-
-    .outputCard {
-        padding-top: 2px;
-        padding-bottom: 2px;
-    }
-
     .outputCard {
         padding-top: 2px;
         padding-bottom: 2px;
@@ -290,11 +229,6 @@
 
     .outputLabel {
         font-size: 13px;
-    }
-
-    .outputIcon {
-        width: 17px;
-        height: 17px;
     }
 
     .outputValue {
@@ -306,11 +240,7 @@
     }
 }
 
-@media (min-height: 901px) and (max-height: 1000px){
-
-    .inputCurrency {
-        font-size: 14px;
-    }
+@media (min-height: 901px) and (max-height: 1000px) {
 
     .inputValue {
         margin-top: 0;
@@ -329,17 +259,8 @@
         font-size: 24px;
     }
 
-    .inputContentButton {
-        padding-bottom: 10px;
-    }
-
     .keypadButton {
         font-Size: 22px;
-    }
-
-    .outputIcon {
-        width: 17px;
-        height: 17px;
     }
 
     .outputCard {
@@ -352,7 +273,7 @@
     }
 }
 
-@media (min-height: 1001px) and (max-height: 1100px){
+@media (min-height: 1001px) and (max-height: 1100px) {
 
     .inputValueFont {
         font-size: 38px;
@@ -375,17 +296,12 @@
         padding-bottom: 6px;
     }
 
-    .outputIcon {
-        width: 20px;
-        height: 20px;
-    }
-
     .outputValue {
         font-size: 22px;
     }
 }
 
-@media (min-height: 1101px) and (max-height: 1200px){
+@media (min-height: 1101px) and (max-height: 1200px) {
 
     .inputValueFont {
         font-size: 38px;
@@ -412,11 +328,6 @@
         font-size: 16px;
     }
 
-    .outputIcon {
-        width: 20px;
-        height: 20px;
-    }
-
     .outputValue {
         font-size: 26px;
     }
@@ -426,7 +337,7 @@
     }
 }
 
-@media (min-height: 1201px) and (max-height: 1300px){
+@media (min-height: 1201px) and (max-height: 1300px) {
 
     .inputValueFont {
         font-size: 40px;
@@ -453,11 +364,6 @@
         font-size: 16px;
     }
 
-    .outputIcon {
-        width: 20px;
-        height: 20px;
-    }
-
     .outputValue {
         font-size: 30px;
     }
@@ -467,10 +373,7 @@
     }
 }
 
-@media (min-height: 1301px){
-    .inputCurrency {
-        font-size: 16px;
-    }
+@media (min-height: 1301px) {
 
     .inputValue {
         margin-bottom: 10px;
@@ -488,11 +391,6 @@
         font-size: 24px;
     }
 
-    .inputButton {
-        width: 40px;
-        height: 40px;
-    }
-
     .keypadButton {
         font-size: 32px;
     }
@@ -504,11 +402,6 @@
 
     .outputLabel {
         font-size: 18px;
-    }
-
-    .outputIcon {
-        width: 24px;
-        height: 24px;
     }
 
     .outputValue {

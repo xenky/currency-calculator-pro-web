@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppSettings, ActiveView } from '../types';
 import { CloseIcon } from './icons/CloseIcon';
 import { DarkModeIcon } from './icons/DarkModeIcon';
@@ -20,7 +19,22 @@ interface MenuProps {
 }
 
 export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppSettingsChange, setActiveView, onUpdateRates }) => {
-  if (!isOpen) return null;
+  const [isRendered, setIsRendered] = useState(isOpen);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+      // Pequeño retraso para permitir que el componente se monte antes de animar
+      const animTimer = setTimeout(() => setIsAnimating(true), 10);
+      return () => clearTimeout(animTimer);
+    } else {
+      setIsAnimating(false);
+      // Retraso para permitir que la animación de salida termine antes de desmontar
+      const renderTimer = setTimeout(() => setIsRendered(false), 300); 
+      return () => clearTimeout(renderTimer);
+    }
+  }, [isOpen]);
 
   const toggleDarkMode = () => {
     onAppSettingsChange({ ...appSettings, darkMode: !appSettings.darkMode });
@@ -36,16 +50,18 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
     onClose();
   };
 
+  if (!isRendered) return null;
+
   return (
-    <div className="fixed inset-0 z-40">
+    <div className={`absolute inset-0 z-40`}>
       {/* Overlay */}
       <div 
-        className={`${styles.menuContainer} absolute inset-0 transition-opacity duration-300 ease-in-out`}
+        className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${isAnimating ? `${styles.opacityMedium}` : `${styles.opacityCero}` }`}
         onClick={onClose}
       ></div>
 
       {/* Menu Panel */}
-      <div className={`fixed top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white dark:bg-slate-800 shadow-xl p-5 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} custom-scrollbar overflow-y-auto`}>
+      <div className={`absolute top-0 left-0 bottom-0 w-4/5 max-w-sm bg-white dark:bg-slate-800 shadow-xl p-5 transform transition-transform duration-300 ease-in-out ${isAnimating ? 'translate-x-0' : '-translate-x-full'} custom-scrollbar overflow-y-auto`}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-indigo-600 dark:text-indigo-400">Menú</h2>
           <button onClick={onClose} className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-full" aria-label="Cerrar menú">
