@@ -102,6 +102,23 @@ const App: React.FC = () => {
     }
   }, [appSettings.darkMode]);
 
+  useEffect(() => {
+    const lockOrientation = async () => {
+      try {
+        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+          await window.screen.orientation.lock('portrait');
+        }
+      } catch (error) {
+        console.warn('No se pudo bloquear la orientación a vertical:', error);
+      }
+    };
+
+    // Solo intentar bloquear en dispositivos que parecen ser móviles
+    if (window.innerWidth < 768) {
+      lockOrientation();
+    }
+  }, []);
+
   const fetchAndUpdateCloudRates = useCallback(async () => {
     try {
       const cloudData = await fetchOfficialRates();
