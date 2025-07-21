@@ -13,6 +13,7 @@ import { initialAppSettings, CURRENCIES, initialExchangeRateState } from './cons
 import { formatNumberForDisplay, parseDisplayNumber, fetchOfficialRates, calculateEffectiveValue } from './services/calculatorService';
 import { getRateDisplayInfo, applyRateUpdate, getFullRateMatrix, RateMatrix, createOrderedPairKey, parseAndApplyFetchedRates } from './services/exchangeRateService';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
 import { SettingsModal } from './components/SettingsModal';
 import { InstallPwaPrompt } from './components/InstallPwaPrompt';
 
@@ -352,6 +353,7 @@ const App: React.FC = () => {
   }, [input]);
 
   const handleOpenSettings = (outputCurrency: Currency) => {
+    if (outputCurrency === activeInputCurrency) return;
     setEditingRateModalParams({ modalForInputCurrency: activeInputCurrency, modalForOutputCurrency: outputCurrency });
     setIsSettingsModalOpen(true);
   };
@@ -372,6 +374,17 @@ const App: React.FC = () => {
       },
     }));
   };
+
+  useKeyboardShortcut([
+    { key: 'b', handler: () => setActiveInputCurrency('VES') },
+    { key: 'p', handler: () => setActiveInputCurrency('COP') },
+    { key: 'd', handler: () => setActiveInputCurrency('USD') },
+    { key: 'e', handler: () => setActiveInputCurrency('EUR') },
+    { key: 'b', ctrlKey: true, handler: () => handleOpenSettings('VES') },
+    { key: 'p', ctrlKey: true, handler: () => handleOpenSettings('COP') },
+    { key: 'd', ctrlKey: true, handler: () => handleOpenSettings('USD') },
+    { key: 'e', ctrlKey: true, handler: () => handleOpenSettings('EUR') },
+  ], { disabled: isSettingsModalOpen });
 
   const evaluationResultForDisplay = lastValidResult;
   const effectiveEvaluationResult = calculateEffectiveValue(evaluationResultForDisplay, activeInputCurrency, appSettings);
@@ -431,7 +444,7 @@ const App: React.FC = () => {
       </div>
 
       <div className="mx-2 mb-2 grid h-full pb-[env(safe-area-inset-bottom)]">
-        <Keypad onKeyPress={handleKeypadPress} />
+        <Keypad onKeyPress={handleKeypadPress} isModalOpen={isSettingsModalOpen} />
       </div>
     </div>
   );

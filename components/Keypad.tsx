@@ -1,15 +1,17 @@
 
 import React from 'react';
 import { KEYPAD_LAYOUT } from '../constants';
+import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import  styles from './styles/component.module.css';
 
 interface KeypadProps {
   onKeyPress: (key: string) => void;
+  isModalOpen?: boolean;
 }
 
 const getAriaLabelForKey = (key: string): string => {
   switch (key) {
-    case 'C': return 'Borrar todo';
+    case 'C': return 'Borrar todo (Supr)';
     case '( )': return 'Abrir paréntesis';
     case '%': return 'Porcentaje';
     case '/': return 'Dividir';
@@ -17,13 +19,27 @@ const getAriaLabelForKey = (key: string): string => {
     case '-': return 'Restar';
     case '+': return 'Sumar';
     case ',': return 'Coma decimal';
-    case '=': return 'Igual';
-    case '⌫': return 'Retroceso'; // Already handled by NumericInputKeypad if this was for it
-    default: return key; // For numbers
+    case '=': return 'Igual (Enter)';
+    case '⌫': return 'Retroceso (Backspace)';
+    default: return key;
   }
 };
 
-export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
+export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, isModalOpen }) => {
+  const shortcuts = [
+    ...KEYPAD_LAYOUT.flat().map((key) => ({
+      key: key === '⌫' ? 'Backspace' : key === 'C' ? 'Delete' : key === '=' ? 'Enter' : key,
+      handler: () => onKeyPress(key),
+    })),
+    { key: 'Escape', handler: () => onKeyPress('C') },
+    { key: 'Backspace', handler: () => onKeyPress('⌫') },
+    { key: 'Enter', handler: () => onKeyPress('=') },
+    { key: 'Delete', handler: () => onKeyPress('C') },
+    { key: '.', handler: () => onKeyPress(',') },
+  ];
+
+  useKeyboardShortcut(shortcuts, { disabled: isModalOpen });
+
   return (
     <div className="grid grid-cols-4 auto-rows-fr gap-0.5 p-1 bg-slate-300 dark:bg-slate-800 shadow-inner" role="grid">
       {KEYPAD_LAYOUT.flat().map((key) => {
@@ -56,6 +72,7 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
             className={`${buttonClass} ${styles.keypadButton} `}
             aria-label={getAriaLabelForKey(key)}
             role="gridcell"
+            title={getAriaLabelForKey(key)}
           >
             {key}
           </button>

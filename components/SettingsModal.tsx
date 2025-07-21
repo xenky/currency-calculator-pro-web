@@ -4,6 +4,7 @@ import { Currency, AllExchangeRates, AppSettings, RateEntry } from '../types';
 import { RateMatrix, createOrderedPairKey, getFullRateMatrix } from '../services/exchangeRateService';
 import { CURRENCY_LABELS, CURRENCY_LABELS_SINGULAR, CURRENCY_VALUE_RANK } from '../constants';
 import { formatNumberForDisplay, parseDisplayNumber } from '../services/calculatorService';
+import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import { NumericInputKeypad } from './NumericInputKeypad';
 import { CloseIcon } from './icons/CloseIcon';
 
@@ -202,6 +203,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     onAppSettingsChange({ ...appSettings, copMultiplyByThousand: !appSettings.copMultiplyByThousand });
   };
 
+  useKeyboardShortcut([
+    { key: 'a', handler: () => setRateTypeSelection('Oficial') },
+    { key: 'm', handler: () => setRateTypeSelection('Manual') },
+    { key: 'Enter', handler: handleSave },
+    { key: 'Escape', handler: onClose },
+  ], { disabled: !isOpen });
+
   if (!isOpen) return null;
 
   let automaticRateDisplayString = 'Tasa Automática no disponible';
@@ -246,7 +254,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <h2 className="text-lg sm:text-xl font-semibold text-slate-800 dark:text-white">
           Ajustar Tasa: {modalForInputCurrency} &rarr; {modalForOutputCurrency}
         </h2>
-        <button onClick={onClose} className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-full" aria-label="Cerrar modal">
+        <button onClick={onClose} className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-full" aria-label="Cerrar modal" title="Salir (Esc)">
           <CloseIcon className="w-6 h-6"/>
         </button>
       </div>
@@ -288,6 +296,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       }}
                       className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded w-full
                           ${rateTypeSelection === type ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500'}`}
+                      title={`Seleccionar Tasa ${type === 'Oficial' ? 'Automática (A)' : 'Manual (M)'}`}
                   >
                       Tasa {type === 'Oficial' ? 'Automática' : 'Manual'}
                   </button>
@@ -306,7 +315,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">{CURRENCY_LABELS[displayQuote]} ({displayQuote})</span>
                 </div>
                 {errorMessage && rateTypeSelection === 'Manual' && <p className="text-xs text-red-500 mt-1">{errorMessage}</p>}
-                <NumericInputKeypad onKeyPress={handleNumericKeypadPress} />
+                <NumericInputKeypad onKeyPress={handleNumericKeypadPress} isModalOpen={isOpen} />
             </div>
           </div>
 
@@ -336,6 +345,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <button 
           onClick={onClose} 
           className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors"
+          title="Salir sin guardar (Esc)"
         >
           Cancelar
         </button>
@@ -343,6 +353,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           onClick={handleSave} 
           disabled={saveButtonDisabled}
           className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-400 dark:disabled:bg-slate-500 transition-colors"
+          title="Guardar cambios (Enter)"
         >
           {saveButtonText}
         </button>

@@ -16,6 +16,13 @@ interface CurrencyOutputProps {
   inputDisplayComponent?: React.ReactNode;
 }
 
+const CURRENCY_SHORTCUTS: Record<Currency, string> = {
+  VES: 'b',
+  COP: 'p',
+  USD: 'd',
+  EUR: 'e',
+};
+
 export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
   currency,
   value,
@@ -37,8 +44,15 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
     return <>{inputDisplayComponent}</>;
   }
 
+  const currencyShortcut = CURRENCY_SHORTCUTS[currency];
+  const settingsShortcut = `Ctrl + ${currencyShortcut}`;
+
   return (
-    <div className={`space-y-1 ${styles.outputContainer} `} onClick={handleCardClick}>
+    <div 
+      className={`space-y-1 ${styles.outputContainer}`} 
+      onClick={handleCardClick}
+      title={`Seleccionar ${CURRENCY_LABELS[currency]} (Atajo: ${currencyShortcut.toUpperCase()})`}
+    >
       <div className={`${styles.outputCard} rounded-lg shadow transition-all duration-200 flex items-center h-full justify-between px-2 cursor-pointer bg-white dark:bg-slate-700`}>
         <div className='flex flex-col flex-grow truncate min-w-0'>
           <span className={`${styles.outputLabel} font-medium text-slate-600 dark:text-slate-300`}>{CURRENCY_LABELS[currency]}</span>
@@ -56,7 +70,12 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
             </div>
           )}
         </div>
-        <button onClick={(e) => { e.stopPropagation(); onSettingsClick(); }} className="p-1 ml-2 text-slate-500 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-500 flex-shrink-0 h-full flex items-center" aria-label={`Ajustar tasa para ${currency}`}>
+        <button 
+          onClick={(e) => { e.stopPropagation(); onSettingsClick(); }} 
+          className="p-1 ml-2 text-slate-500 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-500 flex-shrink-0 h-full flex items-center"
+          aria-label={`Ajustar tasa para ${currency}`}
+          title={`Ajustes de ${CURRENCY_LABELS[currency]} (Atajo: ${settingsShortcut})`}
+        >
           <SettingsIcon className="h-1/2 w-auto" />
         </button>
       </div>

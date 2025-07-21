@@ -1,8 +1,10 @@
 import React from 'react';
+import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import { BackspaceIcon } from './icons/BackspaceIcon';
 
 interface NumericInputKeypadProps {
   onKeyPress: (key: string) => void;
+  isModalOpen?: boolean;
 }
 
 const KEYPAD_NUMERIC_LAYOUT: string[][] = [
@@ -13,7 +15,19 @@ const KEYPAD_NUMERIC_LAYOUT: string[][] = [
   ['', 'C', ''],
 ];
 
-export const NumericInputKeypad: React.FC<NumericInputKeypadProps> = ({ onKeyPress }) => {
+export const NumericInputKeypad: React.FC<NumericInputKeypadProps> = ({ onKeyPress, isModalOpen }) => {
+  const shortcuts = [
+    ...KEYPAD_NUMERIC_LAYOUT.flat().map((key) => ({
+      key: key === '⌫' ? 'Backspace' : key === 'C' ? 'Delete' : key,
+      handler: () => onKeyPress(key),
+    })),
+    { key: 'Backspace', handler: () => onKeyPress('⌫') },
+    { key: 'Delete', handler: () => onKeyPress('C') },
+    { key: '.', handler: () => onKeyPress(',') },
+  ];
+
+  useKeyboardShortcut(shortcuts, { disabled: !isModalOpen });
+
   return (
     <div className="grid grid-cols-3 gap-1 p-1 mt-2  ">
       {KEYPAD_NUMERIC_LAYOUT.flat().map((key) => {
