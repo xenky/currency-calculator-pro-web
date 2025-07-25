@@ -1,5 +1,4 @@
 import { defineConfig, loadEnv } from 'vite';
-import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath, URL } from 'url';
 
 export default defineConfig(({ mode }) => {
@@ -9,9 +8,6 @@ export default defineConfig(({ mode }) => {
       server: {
         host: true,
       },
-      plugins: [
-        tailwindcss(),
-      ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)

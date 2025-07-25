@@ -62,7 +62,7 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, isModalOpen }) => {
         }
          else { // Numbers and comma
           // Using a slightly darker active state for number keys for better feedback
-          buttonClass += "bg-white active:bg-slate-100 text-slate-800 dark:bg-slate-700 dark:active:bg-slate-600 dark:text-white focus-visible:ring-indigo-500";
+          buttonClass += " bg-white active:bg-slate-100 text-slate-800 dark:bg-slate-700 dark:active:bg-slate-600 dark:text-white focus-visible:ring-indigo-500";
         }
 
         return (

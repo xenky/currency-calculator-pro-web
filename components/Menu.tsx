@@ -37,7 +37,9 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
   }, [isOpen]);
 
   const toggleDarkMode = () => {
+    onClose();
     onAppSettingsChange({ ...appSettings, darkMode: !appSettings.darkMode });
+    
   };
 
   const navigateTo = (view: ActiveView) => {

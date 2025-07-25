@@ -3,6 +3,10 @@
     opacity: 70%;
 }
 
+.inputScrollBar {
+    scrollbar-width: thin;
+}
+
 .opacityMedium {
     opacity: 70%;
 }
@@ -74,11 +78,6 @@
     }
 
     .inputContainer {
-        /*background-color: #4F46E5; /* slate-600 */
-        /* background-color: #4338CA; */
-        /* slate-700 */
-        background-color: #3730A3; /* slate-800
-        /*background-color: #312E81; /* slate-900 */
         margin-top: 1.5px;
         margin-bottom: 1.5px;
     }
