@@ -411,3 +411,42 @@
         font-size: 16px;
     }
 }
+
+/* Media query para teléfonos móviles en modo horizontal */
+@media (max-height: 768px) and (orientation: landscape) {
+    .app-full-width-landscape {
+        max-width: 100vw; /* Ocupa todo el ancho de la pantalla */
+        width: 100vw;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .landscape-container {
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+    }
+
+    .currency-output-landscape {
+        flex: 1; /* Ocupa el 50% del ancho */
+        width: 50%;
+        padding: 0.5rem;
+    }
+
+    .keypad-landscape {
+        flex: 1; /* Ocupa el 50% del ancho */
+        width: 50%;
+        padding: 0.5rem;
+    }
+
+    .settings-button-landscape {
+        min-width: 30px; /* Ajusta según sea necesario */
+        min-height: 30px; /* Ajusta según sea necesario */
+        padding: 0.25rem; /* Padding más pequeño */
+    }
+
+    .settings-button-landscape svg { /* Target the SVG icon inside the button */
+        height: 100%; /* Make icon fill the button */
+        width: auto;
+    }
+}

@@ -16,6 +16,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
 import { SettingsModal } from './components/SettingsModal';
 import { InstallPwaPrompt } from './components/InstallPwaPrompt';
+import styles from './components/styles/component.module.css';
 
 const preprocessPercentageExpression = (expression: string): string => {
   return expression.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g, '(($1)/100*($2))');
@@ -89,6 +90,24 @@ const App: React.FC = () => {
   const [editingRateModalParams, setEditingRateModalParams] = useState<{ modalForInputCurrency: Currency, modalForOutputCurrency: Currency } | null>(null);
   const [lastValidResult, setLastValidResult] = useState<number>(0);
   const [ratesLastUpdateDate, setRatesLastUpdateDate] = useState<string | null>(null);
+  const [isMobileLandscape, setIsMobileLandscape] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isMobile = Math.min(window.innerWidth, window.innerHeight) <= 768; // Define mobile based on the smaller dimension
+      const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+      setIsMobileLandscape(isMobile && isLandscape);
+    };
+
+    checkOrientation(); // Initial check
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+
+    return () => {
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
+    };
+  }, []);
 
 
   useEffect(() => {
@@ -393,64 +412,71 @@ const App: React.FC = () => {
   if (activeView === 'history') headerTitle = "Historial de Operaciones";
   else if (activeView === 'about') headerTitle = "Acerca de la Aplicación";
 
-  const renderCalculatorView = () => (
-    <div className="flex flex-col flex-grow overflow-hidden mt-1">
-      <div className="flex flex-col flex-shrink-0 mx-2 mb-1 ">
-        {CURRENCIES.map(currency => {
-          let displayValue: number | null = null;
-          let rateDisplayInfo: ConversionRateInfo | null = null;
+  const renderCalculatorView = () => {
+    const containerClasses = `flex flex-col flex-grow overflow-hidden ${isMobileLandscape ? styles['landscape-container'] : 'mt-1'}`;
+    const currencyOutputWrapperClasses = isMobileLandscape ? 'overflow-y-auto' : 'flex flex-col flex-shrink-0 mx-2 mb-1';
+    const keypadWrapperClasses = isMobileLandscape ? '' : 'mx-2 mb-2 grid h-full pb-[env(safe-area-inset-bottom)]';
 
-          if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
-            const multiplier = rateMatrix[activeInputCurrency][currency].value;
-            if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
-              displayValue = effectiveEvaluationResult * multiplier;
-            }
-            rateDisplayInfo = getRateDisplayInfo(activeInputCurrency, currency, activeRateData, rateMatrix);
-          }
+    return (
+      <div className={containerClasses}>
+        <div className={`${isMobileLandscape ? styles['currency-output-landscape'] : ''} ${currencyOutputWrapperClasses}`}>
+          {CURRENCIES.map(currency => {
+            let displayValue: number | null = null;
+            let rateDisplayInfo: ConversionRateInfo | null = null;
 
-          if (currency === activeInputCurrency) {
-            displayValue = effectiveEvaluationResult;
-            rateDisplayInfo = {
-              pair: `${currency}/${currency}`,
-              value: 1,
-              source: 'System',
-              isDirect: true,
-            };
-          }
-
-          const isInput = currency === activeInputCurrency;
-
-          return (
-            <CurrencyOutput
-              key={currency}
-              currency={currency}
-              value={isInput ? lastValidResult : displayValue}
-              rateInfo={rateDisplayInfo}
-              onSettingsClick={() => handleOpenSettings(currency)}
-              isInputCurrency={isInput}
-              onCurrencySelect={setActiveInputCurrency}
-              inputDisplayComponent={
-                isInput ? (
-                  <InputDisplay
-                    value={input}
-                    activeInputCurrency={activeInputCurrency}
-                    evaluationResult={lastValidResult}
-                  />
-                ) : undefined
+            if (rateMatrix[activeInputCurrency] && rateMatrix[activeInputCurrency][currency]) {
+              const multiplier = rateMatrix[activeInputCurrency][currency].value;
+              if (multiplier && typeof effectiveEvaluationResult === 'number' && isFinite(effectiveEvaluationResult)) {
+                displayValue = effectiveEvaluationResult * multiplier;
               }
-            />
-          );
-        })}
-      </div>
+              rateDisplayInfo = getRateDisplayInfo(activeInputCurrency, currency, activeRateData, rateMatrix);
+            }
 
-      <div className="mx-2 mb-2 grid h-full pb-[env(safe-area-inset-bottom)]">
-        <Keypad onKeyPress={handleKeypadPress} isModalOpen={isSettingsModalOpen} />
+            if (currency === activeInputCurrency) {
+              displayValue = effectiveEvaluationResult;
+              rateDisplayInfo = {
+                pair: `${currency}/${currency}`,
+                value: 1,
+                source: 'System',
+                isDirect: true,
+              };
+            }
+
+            const isInput = currency === activeInputCurrency;
+
+            return (
+              <CurrencyOutput
+                key={currency}
+                currency={currency}
+                value={isInput ? lastValidResult : displayValue}
+                rateInfo={rateDisplayInfo}
+                onSettingsClick={() => handleOpenSettings(currency)}
+                isInputCurrency={isInput}
+                onCurrencySelect={setActiveInputCurrency}
+                inputDisplayComponent={
+                  isInput ? (
+                    <InputDisplay
+                      value={input}
+                      activeInputCurrency={activeInputCurrency}
+                      evaluationResult={lastValidResult}
+                    />
+                  ) : undefined
+                }
+                isMobileLandscape={isMobileLandscape}
+              />
+            );
+          })}
+        </div>
+
+        <div className={`${isMobileLandscape ? styles['keypad-landscape'] : ''} ${keypadWrapperClasses}`}>
+          <Keypad onKeyPress={handleKeypadPress} isModalOpen={isSettingsModalOpen} />
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="relative flex flex-col h-screen max-w-md mx-auto bg-slate-200 dark:bg-slate-900 shadow-lg font-sans">
+    <div className={`relative flex flex-col h-screen max-w-md mx-auto bg-slate-200 dark:bg-slate-900 shadow-lg font-sans ${isMobileLandscape ? styles['app-full-width-landscape'] : ''}`}>
       {isUpdateAvailable && (
         <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
           Tasas de cambio actualizadas.
@@ -463,9 +489,11 @@ const App: React.FC = () => {
         onNavigateBack={() => setActiveView('calculator')}
       />
 
-      {activeView === 'calculator' && renderCalculatorView()}
-      {activeView === 'history' && <HistoryScreen history={history} clearHistory={() => setHistory([])} />}
-      {activeView === 'about' && <AboutScreen />}
+      <div className="flex flex-col flex-grow overflow-hidden mt-1">
+        {activeView === 'calculator' && renderCalculatorView()}
+        {activeView === 'history' && <HistoryScreen history={history} clearHistory={() => setHistory([])} />}
+        {activeView === 'about' && <AboutScreen />}
+      </div>
 
       <Menu
         isOpen={isMenuOpen}

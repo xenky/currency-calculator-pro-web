@@ -14,6 +14,8 @@ interface CurrencyOutputProps {
   isInputCurrency: boolean;
   onCurrencySelect: (currency: Currency) => void;
   inputDisplayComponent?: React.ReactNode;
+  className?: string;
+  isMobileLandscape?: boolean;
 }
 
 const CURRENCY_SHORTCUTS: Record<Currency, string> = {
@@ -31,6 +33,8 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
   isInputCurrency,
   onCurrencySelect,
   inputDisplayComponent,
+  className,
+  isMobileLandscape,
 }) => {
   const formattedValue = value !== null ? formatNumberForDisplay(value, 2, true) : '-.--';
 
@@ -49,7 +53,7 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
 
   return (
     <div 
-      className={`space-y-1 ${styles.outputContainer}`} 
+      className={`space-y-1 ${styles.outputContainer} ${className || ''}`} 
       onClick={handleCardClick}
       title={`Seleccionar ${CURRENCY_LABELS[currency]} (Atajo: ${currencyShortcut.toUpperCase()})`}
     >
@@ -72,7 +76,7 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
         </div>
         <button 
           onClick={(e) => { e.stopPropagation(); onSettingsClick(); }} 
-          className="p-1 ml-2 text-slate-500 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-500 flex-shrink-0 h-full flex items-center"
+          className={`p-1 ml-2 text-slate-500 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-500 flex-shrink-0 h-full flex items-center ${isMobileLandscape ? styles['settings-button-landscape'] : ''}`}
           aria-label={`Ajustar tasa para ${currency}`}
           title={`Ajustes de ${CURRENCY_LABELS[currency]} (Atajo: ${settingsShortcut})`}
         >

@@ -7,6 +7,7 @@ import  styles from './styles/component.module.css';
 interface KeypadProps {
   onKeyPress: (key: string) => void;
   isModalOpen?: boolean;
+  className?: string;
 }
 
 const getAriaLabelForKey = (key: string): string => {
@@ -25,7 +26,7 @@ const getAriaLabelForKey = (key: string): string => {
   }
 };
 
-export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, isModalOpen }) => {
+export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, isModalOpen, className }) => {
   const shortcuts = [
     ...KEYPAD_LAYOUT.flat().map((key) => ({
       key: key === '⌫' ? 'Backspace' : key === 'C' ? 'Delete' : key === '=' ? 'Enter' : key,
@@ -41,7 +42,7 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, isModalOpen }) => {
   useKeyboardShortcut(shortcuts, { disabled: isModalOpen });
 
   return (
-    <div className="grid grid-cols-4 auto-rows-fr gap-0.5 p-1 bg-slate-300 dark:bg-slate-800 shadow-inner" role="grid">
+    <div className={`grid grid-cols-4 auto-rows-fr gap-0.5 p-1 bg-slate-300 dark:bg-slate-800 shadow-inner ${className || ''}`} role="grid">
       {KEYPAD_LAYOUT.flat().map((key) => {
         const isOperator = ['/', '*', '-', '+', '%'].includes(key);
         const isEqual = key === '=';
