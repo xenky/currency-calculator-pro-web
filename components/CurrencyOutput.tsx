@@ -58,7 +58,7 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
       title={`Seleccionar ${CURRENCY_LABELS[currency]} (Atajo: ${currencyShortcut.toUpperCase()})`}
     >
       <div className={`${styles.outputCard} rounded-lg shadow transition-all duration-200 flex items-center h-full justify-between px-2 cursor-pointer bg-white dark:bg-slate-700`}>
-        <div className='flex flex-col flex-grow truncate min-w-0'>
+        <div className='flex flex-col flex-grow h-full justify-between truncate min-w-0'>
           <span className={`${styles.outputLabel} font-medium text-slate-600 dark:text-slate-300`}>{CURRENCY_LABELS[currency]}</span>
           <div className={`${styles.outputValue} text-right font-mono text-slate-800 dark:text-white truncate`}>
             {formattedValue}
@@ -76,7 +76,7 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
         </div>
         <button 
           onClick={(e) => { e.stopPropagation(); onSettingsClick(); }} 
-          className={`p-1 ml-2 text-slate-500 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-500 flex-shrink-0 h-full flex items-center ${isMobileLandscape ? styles['settings-button-landscape'] : ''}`}
+          className={`p-1 ml-2 text-slate-500 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-500 flex-shrink-0 h-full flex items-center `}
           aria-label={`Ajustar tasa para ${currency}`}
           title={`Ajustes de ${CURRENCY_LABELS[currency]} (Atajo: ${settingsShortcut})`}
         >

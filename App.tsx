@@ -413,13 +413,13 @@ const App: React.FC = () => {
   else if (activeView === 'about') headerTitle = "Acerca de la Aplicación";
 
   const renderCalculatorView = () => {
-    const containerClasses = `flex flex-col flex-grow overflow-hidden ${isMobileLandscape ? styles['landscape-container'] : 'mt-1'}`;
-    const currencyOutputWrapperClasses = isMobileLandscape ? 'overflow-y-auto' : 'flex flex-col flex-shrink-0 mx-2 mb-1';
+    const containerClasses = `flex flex-col flex-grow  overflow-hidden ${isMobileLandscape ? styles['landscape-container'] : 'mt-1'}`;
+    const currencyOutputWrapperClasses = isMobileLandscape ? 'grid grid-cols-1  h-full overflow-y-auto' : 'flex flex-col flex-shrink-0 mx-2 mb-1';
     const keypadWrapperClasses = isMobileLandscape ? '' : 'mx-2 mb-2 grid h-full pb-[env(safe-area-inset-bottom)]';
 
     return (
-      <div className={containerClasses}>
-        <div className={`${isMobileLandscape ? styles['currency-output-landscape'] : ''} ${currencyOutputWrapperClasses}`}>
+      <div className= {containerClasses} >
+        <div className={`${isMobileLandscape ? styles['currency-output-landscape'] : ''} ${currencyOutputWrapperClasses} `}>
           {CURRENCIES.map(currency => {
             let displayValue: number | null = null;
             let rateDisplayInfo: ConversionRateInfo | null = null;
@@ -519,6 +519,7 @@ const App: React.FC = () => {
           appSettings={appSettings}
           onAppSettingsChange={setAppSettings}
           lastUpdateDate={ratesLastUpdateDate}
+          isMobileLandscape={isMobileLandscape}
         />
       )}
 

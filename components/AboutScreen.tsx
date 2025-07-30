@@ -12,7 +12,7 @@ export const AboutScreen: React.FC = () => {
         </h2>
         
         <div className="text-sm sm:text-base text-slate-700 dark:text-slate-300 space-y-4">
-          <p className="font-semibold text-lg">Versión: 1.1.3</p>
+          <p className="font-semibold text-lg">Versión: 1.1.4</p>
           <p>Esta aplicación es una calculadora de divisas moderna y fácil de usar, construida con las últimas tecnologías web para ofrecer una experiencia fluida y eficiente.</p>
 
           <div>
@@ -30,7 +30,7 @@ export const AboutScreen: React.FC = () => {
           <hr className="my-6 border-slate-300 dark:border-slate-700"/>
 
           <div className="flex flex-col items-center">
-            <p className="font-medium flex items-end">Desarrollada con <HeartIcon className="w-5 h-5 "/> y <CoffeeCupIcon color="white" className="w-6 h-9 ml-2 mr-2 "/>por:</p>
+            <p className="font-medium flex items-end">Desarrollada con <HeartIcon className="w-5 h-5 "/> y <CoffeeCupIcon color='#EF4444' className=" w-6 h-9 ml-2 mr-2 "/>por:</p>
             <p className="text-lg font-semibold text-indigo-700 dark:text-indigo-400 mt-1">Freddy Rujano</p>
             <p>La Grita - Táchira</p>
             <p>Venezuela</p>

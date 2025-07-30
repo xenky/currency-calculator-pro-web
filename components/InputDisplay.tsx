@@ -22,8 +22,9 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, activeInputCu
     }
   }, [value]);
 
+
   return (
-    <div className="p-y-1 "><div className={`rounded-lg shadow transition-all duration-200 flex flex-col space-y-1 bg-indigo-200 dark:bg-indigo-900 border-2 border-indigo-400 dark:border-indigo-600 mx-1  ${styles.inputContainer} `}>
+    <div className="p-y-1 flex flex-col content-around "><div className={`rounded-lg shadow transition-all duration-200 flex flex-col h-full justify-between space-y-1 bg-indigo-200 dark:bg-indigo-900 border-2 border-indigo-400 dark:border-indigo-600 mx-1  ${styles.inputContainer} `}>
       <div className="flex justify-between items-center px-3 ">
         <span className={`font-medium text-slate-600  dark:text-white ${styles.inputLabel}`}>
           {CURRENCY_LABELS[activeInputCurrency]}
@@ -39,9 +40,11 @@ export const InputDisplay: React.FC<InputDisplayProps> = ({ value, activeInputCu
           >
             {value || '0'}
           </div>
-          <div className={`text-emerald-600 dark:text-emerald-400 mx-3 text-end truncate min-w-0`}>{formattedResult || '0'}</div>
+
         </div>
       </div>
+      <div className={`text-emerald-600 dark:text-emerald-400 mx-3 text-end truncate min-w-0 ${styles.inputResult}`}>{formattedResult || '0'}</div>
+
     </div>
     </div>
   );

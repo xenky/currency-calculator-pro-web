@@ -42,7 +42,7 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, isModalOpen, classNa
   useKeyboardShortcut(shortcuts, { disabled: isModalOpen });
 
   return (
-    <div className={`grid grid-cols-4 auto-rows-fr gap-0.5 p-1 bg-slate-300 dark:bg-slate-800 shadow-inner ${className || ''}`} role="grid">
+    <div className={`grid grid-cols-4 auto-rows-fr h-full gap-0.5 p-1 bg-slate-300 dark:bg-slate-800 shadow-inner ${className || ''}`} role="grid">
       {KEYPAD_LAYOUT.flat().map((key) => {
         const isOperator = ['/', '*', '-', '+', '%'].includes(key);
         const isEqual = key === '=';
