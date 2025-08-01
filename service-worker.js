@@ -37,7 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 /// <reference lib="webworker" />
 var sw = self;
-var STATIC_CACHE_NAME = 'static-cache-v2';
+var STATIC_CACHE_NAME = 'static-cache-v3';
 var RATES_CACHE_NAME = 'rates-cache-v2';
 var RATES_API_URL = 'https://raw.githubusercontent.com/xenky/exchange_rates/main/rates.json';
 // URLs for the app shell to be cached
@@ -147,21 +147,18 @@ sw.addEventListener('fetch', function (event) {
         }));
     }
     else if (event.request.method === 'GET' && requestUrl.protocol.startsWith('http')) {
-        // For all other GET requests, use a cache-first, then network strategy
-        event.respondWith(caches.match(event.request).then(function (response) {
-            if (response) {
-                return response; // Serve from cache
-            }
-            // Not in cache, fetch from network, cache, and return
-            return fetch(event.request).then(function (networkResponse) {
-                // Check if we received a valid response
-                if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
-                    var responseToCache_1 = networkResponse.clone();
-                    caches.open(STATIC_CACHE_NAME).then(function (cache) {
-                        cache.put(event.request, responseToCache_1);
-                    });
-                }
-                return networkResponse;
+        // Stale-while-revalidate strategy for all other GET requests
+        event.respondWith(caches.open(STATIC_CACHE_NAME).then(function (cache) {
+            return cache.match(event.request).then(function (response) {
+                var fetchPromise = fetch(event.request).then(function (networkResponse) {
+                    // Check if we received a valid response
+                    if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+                        cache.put(event.request, networkResponse.clone());
+                    }
+                    return networkResponse;
+                });
+                // Return cached response if available, otherwise wait for network
+                return response || fetchPromise;
             });
         }));
     }
