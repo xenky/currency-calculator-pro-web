@@ -8,6 +8,7 @@ import { NumericInputKeypad } from './NumericInputKeypad';
 import { CloseIcon } from './icons/CloseIcon';
 import styles from './styles/component.module.css';
 
+let isNewRate = true;
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -178,6 +179,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } else {
       if (manualRateInput === '0' && key !== ',') {
         setManualRateInput(key);
+      } else if (isNewRate) {
+        setManualRateInput(key);
+        isNewRate = false;
       } else {
         if (manualRateInput.length < 15) {
           setManualRateInput(manualRateInput + key);
@@ -203,9 +207,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       }
       onSaveManualRate(modalForInputCurrency, modalForOutputCurrency, rateToStoreForActualPair);
       onSetPreferredRateType(orderedPairKeyForStorage, 'manual');
+      
     } else { // rateTypeSelection === 'Oficial'
       onSetPreferredRateType(orderedPairKeyForStorage, 'oficial');
     }
+    isNewRate = true;
     onClose();
   };
 
@@ -304,6 +310,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           valToSet = formatNumberForDisplay(valueForDisplay, 2, true);
                         }
                         setManualRateInput(valToSet);
+                        isNewRate = true;
                       }
                     }}
                     className={`px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded w-full
@@ -366,7 +373,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-400 dark:disabled:bg-slate-500 transition-colors"
               title="Guardar cambios (Enter)"
             >
-              {saveButtonText}
+              {saveButtonText} 
             </button>
           </div>
         </div>
