@@ -9,6 +9,7 @@ interface AppContextType {
   setAppSettings: React.Dispatch<React.SetStateAction<AppSettings>>;
   history: HistoryEntry[];
   setHistory: React.Dispatch<React.SetStateAction<HistoryEntry[]>>;
+  /* about: about; */
   exchangeRateState: ExchangeRateState;
   setExchangeRates: React.Dispatch<React.SetStateAction<ExchangeRateState>>;
 }
@@ -23,6 +24,7 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   const value = {
     appSettings,
     setAppSettings,
+    /* about, */
     history,
     setHistory,
     exchangeRateState,
