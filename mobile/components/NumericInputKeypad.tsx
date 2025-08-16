@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { BackspaceIcon } from './icons/BackspaceIcon';
 
 interface NumericInputKeypadProps {
@@ -15,34 +15,79 @@ const KEYPAD_NUMERIC_LAYOUT: string[][] = [
 ];
 
 export const NumericInputKeypad: React.FC<NumericInputKeypadProps> = ({ onKeyPress }) => {
-  return (
-    <View className="flex-row flex-wrap justify-center gap-1 p-1 mt-2 bg-indigo-100 dark:bg-transparent">
-      {KEYPAD_NUMERIC_LAYOUT.flat().map((key, index) => {
-        let buttonClass = "rounded shadow-sm active:shadow-inner transition-all duration-100 ease-in-out items-center justify-center w-[32%] aspect-square ";
-        let textClass = "text-xl font-medium";
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
-        if (key === '⌫') {
-          buttonClass += " bg-slate-400 active:bg-slate-500 dark:bg-slate-500";
-          textClass += " text-slate-800 dark:text-white";
-        } else if (key === 'C') {
-          buttonClass += " bg-red-400 active:bg-red-500";
-          textClass += " text-white";
-        } else if (key === '') {
-          buttonClass += " bg-transparent shadow-none active:shadow-none";
-        } else {
-          buttonClass += " bg-white active:bg-slate-100 dark:bg-slate-600 dark:active:bg-slate-500";
-          textClass += " text-slate-800 dark:text-white";
-        }
-        
+  const getButtonStyles = (key: string) => {
+    const buttonStyles: any[] = [styles.button];
+    const textStyles: any[] = [styles.text];
+
+    if (key === '⌫') {
+      buttonStyles.push(isDarkMode ? styles.darkBackspaceButton : styles.lightBackspaceButton);
+    } else if (key === 'C') {
+      buttonStyles.push(styles.clearButton);
+      textStyles.push(styles.whiteText);
+    } else if (key === '') {
+      buttonStyles.push(styles.emptyButton);
+    } else {
+      buttonStyles.push(isDarkMode ? styles.darkNumberButton : styles.lightNumberButton);
+      textStyles.push(isDarkMode ? styles.whiteText : styles.darkText);
+    }
+
+    return { button: buttonStyles, text: textStyles };
+  };
+
+  const styles = StyleSheet.create({
+    root: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      padding: 4,
+      marginTop: 8,
+      marginRight: 48,
+      marginLeft: 48,
+      backgroundColor: isDarkMode ? 'transparent' : '#e0e7ff',
+    },
+    button: {
+      borderRadius: 4,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '32%',
+      aspectRatio: 1.1,
+      margin: '0.5%',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.20,
+      shadowRadius: 1.41,
+      elevation: 2,
+    },
+    text: {
+      fontSize: 20,
+      fontWeight: '500',
+    },
+    lightBackspaceButton: { backgroundColor: '#94a3b8' },
+    darkBackspaceButton: { backgroundColor: '#64748b' },
+    clearButton: { backgroundColor: '#f87171' },
+    whiteText: { color: '#fff' },
+    emptyButton: { backgroundColor: 'transparent', shadowColor: 'transparent', elevation: 0 },
+    lightNumberButton: { backgroundColor: '#fff' },
+    darkNumberButton: { backgroundColor: '#475569' },
+    darkText: { color: '#1e293b' },
+  });
+
+  return (
+    <View style={styles.root}>
+      {KEYPAD_NUMERIC_LAYOUT.flat().map((key, index) => {
+        const { button, text } = getButtonStyles(key);
         return (
           <TouchableOpacity
             key={index}
             onPress={() => onKeyPress(key)}
-            className={buttonClass}
+            style={button}
             accessibilityLabel={key === '⌫' ? 'Retroceso' : key}
             disabled={key === ''}
           >
-            {key === '⌫' ? <BackspaceIcon className="w-8 h-8 text-slate-800 dark:text-white" /> : <Text className={textClass}>{key}</Text>}
+            {key === '⌫' ? <BackspaceIcon width={32} height={32} fill={isDarkMode ? '#fff' : '#1e293b'} /> : <Text style={text}>{key}</Text>}
           </TouchableOpacity>
         );
       })}

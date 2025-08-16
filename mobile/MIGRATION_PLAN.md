@@ -36,20 +36,20 @@ El objetivo es reescribir cada componente de UI para que use componentes de Reac
 - [x] `AboutScreen.tsx`
 - [x] `InstallPwaPrompt.tsx` (se reemplazará por una funcionalidad nativa si es necesario).
 
-## Fase 5: Integración de Lógica y Hooks
+## Fase 5: Integración de Lógica y Hooks (Completada)
 
-- [ ] Copiar los servicios de `services/` al nuevo proyecto en `mobile/services/`.
-- [ ] Copiar los hooks de `hooks/` a `mobile/hooks/`.
-- [ ] Adaptar `useLocalStorage.ts` para que use `AsyncStorage` de React Native en lugar del Local Storage del navegador.
+- [x] Copiar los servicios de `services/` al nuevo proyecto en `mobile/services/`.
+- [x] Copiar los hooks de `hooks/` a `mobile/hooks/`.
+- [x] Adaptar `useLocalStorage.ts` para que use `AsyncStorage` de React Native en lugar del Local Storage del navegador.
 
-## Fase 6: Configuración de la Navegación
+## Fase 6: Configuración de la Navegación (Completada)
 
-- [ ] Crear el navegador principal de la aplicación (probablemente un Tab Navigator) en `mobile/navigation/`.
-- [ ] Configurar las pestañas para las pantallas principales (Calculadora, Historial, etc.).
-- [ ] Implementar la navegación al modal de `Settings`.
+- [x] Crear el navegador principal de la aplicación (probablemente un Tab Navigator) en `mobile/navigation/`.
+- [x] Configurar las pestañas para las pantallas principales (Calculadora, Historial, etc.).
+- [x] Implementar la navegación al modal de `Settings`.
 
 ## Fase 7: Toques Finales y Pruebas
 
-- [ ] Realizar pruebas exhaustivas en emuladores de Android y iOS.
+- [ ] Realizar pruebas exhaustivas.
 - [ ] Ajustar estilos y layout para diferentes tamaños de pantalla.
-- [ ] Limpiar el código y eliminar archivos innecesarios de la plantilla inicial.
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { Currency, ConversionRateInfo } from '../types';
 import { CURRENCY_LABELS } from '../constants';
 import { formatNumberForDisplay } from '../services/calculatorService';
@@ -13,8 +13,6 @@ interface CurrencyOutputProps {
   isInputCurrency: boolean;
   onCurrencySelect: (currency: Currency) => void;
   inputDisplayComponent?: React.ReactNode;
-  className?: string;
-  isMobileLandscape?: boolean; // This will be ignored for now
 }
 
 export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
@@ -25,9 +23,10 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
   isInputCurrency,
   onCurrencySelect,
   inputDisplayComponent,
-  className,
 }) => {
   const formattedValue = value !== null ? formatNumberForDisplay(value, 2, true) : '-.--';
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
   const handleCardClick = () => {
     if (!isInputCurrency) {
@@ -39,35 +38,93 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
     return <>{inputDisplayComponent}</>;
   }
 
+  const styles = StyleSheet.create({
+    root: {
+      padding: 4,
+    },
+    container: {
+      paddingVertical: 1,
+      borderRadius: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: '100%',
+      justifyContent: 'space-between',
+      paddingHorizontal: 8,
+      backgroundColor: isDarkMode ? '#334155' : '#fff',
+    },
+    textContainer: {
+      flexDirection: 'column',
+      flexGrow: 1,
+      height: '100%',
+      justifyContent: 'space-between',
+      minWidth: 0,
+    },
+    currencyLabel: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: isDarkMode ? '#cbd5e1' : '#475569',
+    },
+    value: {
+      fontSize: 20,
+      textAlign: 'right',
+      fontFamily: 'monospace',
+      color: isDarkMode ? '#fff' : '#1e293b',
+      marginBottom: 1,
+    },
+    rateInfo: {
+      fontSize: 12,
+      textAlign: 'right',
+      color: isDarkMode ? '#94a3b8' : '#64748b',
+      paddingTop: 1,
+    },
+    error: {
+      fontSize: 12,
+      textAlign: 'right',
+      color: isDarkMode ? '#f87171' : '#ef4444',
+    },
+    settingsTouchable: {
+      padding: 4,
+      marginLeft: 8,
+      flexShrink: 0,
+      height: '100%',
+      alignItems: 'center',
+    },
+  });
+
   return (
     <TouchableOpacity 
-      className={`space-y-1 p-1 ${className || ''}`} 
+      style={styles.root}
       onPress={handleCardClick}
       accessibilityLabel={`Seleccionar ${CURRENCY_LABELS[currency]}`}
     >
-      <View className="py-px rounded-lg shadow flex-row items-center h-full justify-between px-2 bg-white dark:bg-slate-700">
-        <View className='flex-col flex-grow h-full justify-between truncate min-w-0'>
-          <Text className="text-sm font-medium text-slate-600 dark:text-slate-300">{CURRENCY_LABELS[currency]}</Text>
-          <Text className="text-xl text-right font-mono text-slate-800 dark:text-white truncate mb-px">
+      <View style={styles.container}>
+        <View style={styles.textContainer}>
+          <Text style={styles.currencyLabel} numberOfLines={1}>{CURRENCY_LABELS[currency]}</Text>
+          <Text style={styles.value} numberOfLines={1}>
             {formattedValue}
           </Text>
           {rateInfo && (
-            <Text className="text-xs text-right text-slate-500 dark:text-slate-400 truncate pt-px">
+            <Text style={styles.rateInfo} numberOfLines={1}>
               {rateInfo.source} - {rateInfo.pair}: {formatNumberForDisplay(rateInfo.value, 2, true)}
             </Text>
           )}
           {value === null && !rateInfo?.value && (
-            <Text className="text-xs text-right text-red-500 dark:text-red-400">
+            <Text style={styles.error}>
               Tasa no disponible
             </Text>
           )}
         </View>
         <TouchableOpacity 
           onPress={onSettingsClick} 
-          className="p-1 ml-2 flex-shrink-0 h-full flex items-center"
+          style={styles.settingsTouchable}
           accessibilityLabel={`Ajustar tasa para ${currency}`}
         >
-          <SettingsIcon className="h-1/2 w-auto text-slate-500 dark:text-white" />
+          <SettingsIcon height="50%"  fill={isDarkMode ? '#fff' : '#64748b'} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

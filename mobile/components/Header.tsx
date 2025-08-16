@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { ActiveView } from '../types';
 import { MenuIcon } from './icons/MenuIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
@@ -17,27 +17,59 @@ export const Header: React.FC<HeaderProps> = ({
   headerTitle,
   onNavigateBack
 }) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  const styles = StyleSheet.create({
+    root: {
+      backgroundColor: isDarkMode ? '#1e293b' : '#4f46e5',
+      padding: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4.65,
+      elevation: 8,
+    },
+    container: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    touchable: {
+      padding: 8,
+      borderRadius: 9999,
+    },
+    placeholder: {
+      width: 40,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: '#fff',
+    },
+  });
+
   return (
-    <View className="bg-indigo-600 dark:bg-slate-800 p-3 shadow-md">
-      <View className="flex-row justify-between items-center">
+    <View style={styles.root}>
+      <View style={styles.container}>
         {activeView !== 'calculator' ? (
           <TouchableOpacity 
             onPress={onNavigateBack} 
-            className="p-2 rounded-full" 
+            style={styles.touchable}
             accessibilityLabel="Volver"
           >
-            <ArrowLeftIcon className="w-6 h-6 text-white" />
+            <ArrowLeftIcon width={24} height={24} stroke="#fff" />
           </TouchableOpacity>
         ) : (
-          <View className="w-10" /> // Placeholder for spacing
+          <View style={styles.placeholder} /> // Placeholder for spacing
         )}
-        <Text className="text-xl font-semibold text-white">{headerTitle}</Text>
+        <Text style={styles.title}>{headerTitle}</Text>
         <TouchableOpacity 
           onPress={onMenuToggle} 
-          className="p-2 rounded-full" 
+          style={styles.touchable}
           accessibilityLabel="Abrir menú"
         >
-          <MenuIcon className="w-6 h-6 text-white" />
+          <MenuIcon width={24} height={24} stroke="#fff" />
         </TouchableOpacity>
       </View>
     </View>

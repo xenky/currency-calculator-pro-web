@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, SafeAreaView, ScrollView, Switch } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, SafeAreaView, ScrollView, Switch, StyleSheet } from 'react-native';
 import { Currency, AllExchangeRates, AppSettings, RateEntry } from '../types';
 import { RateMatrix, createOrderedPairKey, getFullRateMatrix } from '../services/exchangeRateService';
 import { CURRENCY_LABELS, CURRENCY_LABELS_SINGULAR, CURRENCY_VALUE_RANK } from '../constants';
@@ -32,7 +32,6 @@ const formatVenezuelanDate = (utcDateString: string | null): string => {
   try {
     const date = new Date(utcDateString);
     if (isNaN(date.getTime())) throw new Error('Invalid date');
-    // VET is UTC-4
     date.setHours(date.getHours() - 4);
     return date.toLocaleString('es-VE', {
       year: '2-digit',
@@ -57,6 +56,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [manualRateInput, setManualRateInput] = useState<string>('0,00');
   const [rateTypeSelection, setRateTypeSelection] = useState<RateTypeSelection>('Oficial');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isDarkMode = appSettings.darkMode;
 
   let displayBase: Currency, displayQuote: Currency;
   if (CURRENCY_VALUE_RANK[modalForInputCurrency] >= CURRENCY_VALUE_RANK[modalForOutputCurrency]) {
@@ -146,38 +146,225 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const saveButtonText = rateTypeSelection === 'Manual' ? 'Guardar Tasa Manual' : 'Usar Tasa Automática';
   const isSaveDisabled = errorMessage ? true : rateTypeSelection === 'Oficial' ? (preferredRateTypes[orderedPairKeyForStorage] === 'oficial' || (!preferredRateTypes[orderedPairKeyForStorage] && !manualRateEntryForPair)) : parseDisplayNumber(manualRateInput) <= 0;
 
+  const styles = StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: isDarkMode ? '#1e293b' : '#fff',
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: isDarkMode ? '#334155' : '#e2e8f0',
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: isDarkMode ? '#fff' : '#1e293b',
+      width: '83.333333%',
+    },
+    closeButton: {
+      padding: 4,
+      borderRadius: 9999,
+    },
+    scrollView: {
+      flex: 1,
+      padding: 16,
+    },
+    autoRateInfo: {
+      marginBottom: 16,
+      padding: 12,
+      backgroundColor: isDarkMode ? '#334155' : '#f1f5f9',
+      borderRadius: 8,
+    },
+    autoRateTitle: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: isDarkMode ? '#cbd5e1' : '#334155',
+      marginBottom: 4,
+    },
+    autoRateValue: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: isDarkMode ? '#818cf8' : '#4f46e5',
+    },
+    divider: {
+      borderTopWidth: 1,
+      borderTopColor: isDarkMode ? '#475569' : '#e2e8f0',
+      marginVertical: 8,
+    },
+    lastUpdate: {
+      fontSize: 12,
+      color: isDarkMode ? '#94a3b8' : '#64748b',
+      textAlign: 'right',
+    },
+    rateTypeSelector: {
+      marginBottom: 16,
+    },
+    rateTypeTitle: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: isDarkMode ? '#cbd5e1' : '#334155',
+      marginBottom: 8,
+    },
+    rateTypeButtons: {
+      flexDirection: 'row',
+    },
+    rateTypeButton: {
+      paddingVertical: 8,
+      borderRadius: 8,
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginHorizontal: 8,
+    },
+    selectedRateTypeButton: {
+      backgroundColor: '#4f46e5',
+    },
+    unselectedRateTypeButton: {
+      backgroundColor: isDarkMode ? '#475569' : '#e2e8f0',
+    },
+    selectedRateTypeText: {
+      fontWeight: '700',
+      color: '#fff',
+    },
+    unselectedRateTypeText: {
+      fontWeight: '700',
+      color: isDarkMode ? '#e2e8f0' : '#334155',
+    },
+    manualRateSection: {
+      marginBottom: 16,
+    },
+    manualRateTitle: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: isDarkMode ? '#cbd5e1' : '#334155',
+      marginBottom: 4,
+    },
+    manualRateInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 8,
+      borderWidth: 1,
+      borderRadius: 8,
+      backgroundColor: isDarkMode ? '#0f172a' : '#fff',
+    },
+    errorBorder: {
+      borderColor: '#ef4444',
+    },
+    normalBorder: {
+      borderColor: isDarkMode ? '#475569' : '#cbd5e1',
+    },
+    manualRateInput: {
+      fontSize: 20,
+      textAlign: 'right',
+      flex: 1,
+      color: isDarkMode ? '#fff' : '#1e293b',
+    },
+    manualRateCurrency: {
+      fontSize: 14,
+      color: isDarkMode ? '#94a3b8' : '#64748b',
+      marginLeft: 8,
+    },
+    errorMessage: {
+      fontSize: 12,
+      color: '#ef4444',
+      marginTop: 4,
+    },
+    copToggle: {
+      marginBottom: 16,
+      padding: 12,
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderColor: isDarkMode ? '#475569' : '#cbd5e1',
+      borderRadius: 8,
+    },
+    copToggleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    copToggleTitle: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: isDarkMode ? '#cbd5e1' : '#334155',
+      flex: 1,
+      marginRight: 8,
+    },
+    copToggleDescription: {
+      fontSize: 12,
+      color: isDarkMode ? '#94a3b8' : '#64748b',
+      marginTop: 4,
+    },
+    spacer: {
+      height: 80,
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      padding: 16,
+      borderTopWidth: 1,
+      borderTopColor: isDarkMode ? '#334155' : '#e2e8f0',
+    },
+    cancelButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: isDarkMode ? '#475569' : '#e2e8f0',
+      marginHorizontal: 6,
+    },
+    cancelButtonText: {
+      color: isDarkMode ? '#e2e8f0' : '#334155',
+      fontWeight: '700',
+    },
+    saveButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+    },
+    disabledSaveButton: {
+      backgroundColor: isDarkMode ? '#64748b' : '#94a3b8',
+    },
+    enabledSaveButton: {
+      backgroundColor: '#4f46e5',
+    },
+    saveButtonText: {
+      color: '#fff',
+      fontWeight: '700',
+    },
+  });
+
   return (
     <Modal animationType="slide" transparent={false} visible={isOpen} onRequestClose={onClose}>
-      <SafeAreaView className="flex-1 bg-white dark:bg-slate-800">
-        {/* Header */}
-        <View className="flex-row justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
-          <Text className="text-lg font-semibold text-slate-800 dark:text-white w-5/6" numberOfLines={1} ellipsizeMode="tail">
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle} numberOfLines={1} ellipsizeMode="tail">
             Ajustar: {modalForInputCurrency} &rarr; {modalForOutputCurrency}
           </Text>
-          <TouchableOpacity onPress={onClose} className="p-1 rounded-full">
-            <CloseIcon className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <CloseIcon width={24} height={24} stroke={isDarkMode ? '#94a3b8' : '#64748b'} />
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="flex-1 p-4">
-          {/* Auto Rate Info */}
-          <View className="mb-4 p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
-            <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tasa Automática Registrada:</Text>
-            <Text className="text-base font-semibold text-indigo-600 dark:text-indigo-400">{automaticRateDisplayString}</Text>
-            <View className="border-t border-slate-200 dark:border-slate-600 my-2" />
-            <Text className="text-xs text-slate-500 dark:text-slate-400 text-right">Última actualización: {formatVenezuelanDate(lastUpdateDate)}</Text>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.autoRateInfo}>
+            <Text style={styles.autoRateTitle}>Tasa Automática Registrada:</Text>
+            <Text style={styles.autoRateValue}>{automaticRateDisplayString}</Text>
+            <View style={styles.divider} />
+            <Text style={styles.lastUpdate}>Última actualización: {formatVenezuelanDate(lastUpdateDate)}</Text>
           </View>
 
-          {/* Rate Type Selector */}
-          <View className="mb-4">
-            <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Seleccionar Tipo de Tasa:</Text>
-            <View className="flex-row space-x-4">
+          <View style={styles.rateTypeSelector}>
+            <Text style={styles.rateTypeTitle}>Seleccionar Tipo de Tasa:</Text>
+            <View style={styles.rateTypeButtons}>
               {(['Oficial', 'Manual'] as RateTypeSelection[]).map(type => (
                 <TouchableOpacity
                   key={type}
                   onPress={() => setRateTypeSelection(type)}
-                  className={`py-2 rounded-lg flex-1 items-center justify-center ${rateTypeSelection === type ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-600'}`}>
-                  <Text className={`font-bold ${rateTypeSelection === type ? 'text-white' : 'text-slate-700 dark:text-slate-200'}`}>
+                  style={[styles.rateTypeButton, rateTypeSelection === type ? styles.selectedRateTypeButton : styles.unselectedRateTypeButton]}>
+                  <Text style={rateTypeSelection === type ? styles.selectedRateTypeText : styles.unselectedRateTypeText}>
                     {type === 'Oficial' ? 'Automática' : 'Manual'}
                   </Text>
                 </TouchableOpacity>
@@ -185,26 +372,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </View>
           </View>
 
-          {/* Manual Rate Section */}
           {rateTypeSelection === 'Manual' && (
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            <View style={styles.manualRateSection}>
+              <Text style={styles.manualRateTitle}>
                 1 {CURRENCY_LABELS_SINGULAR[displayBase]} ({displayBase}) =
               </Text>
-              <View className={`flex-row items-center p-2 border rounded-lg bg-white dark:bg-slate-900 ${errorMessage ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}`}>
-                <Text className="text-xl text-right flex-1 text-slate-800 dark:text-white">{manualRateInput}</Text>
-                <Text className="text-sm text-slate-500 dark:text-slate-400 ml-2">{CURRENCY_LABELS[displayQuote]} ({displayQuote})</Text>
+              <View style={[styles.manualRateInputContainer, errorMessage ? styles.errorBorder : styles.normalBorder]}>
+                <Text style={styles.manualRateInput}>{manualRateInput}</Text>
+                <Text style={styles.manualRateCurrency}>{CURRENCY_LABELS[displayQuote]} ({displayQuote})</Text>
               </View>
-              {errorMessage && <Text className="text-xs text-red-500 mt-1">{errorMessage}</Text>}
+              {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}
               <NumericInputKeypad onKeyPress={handleNumericKeypadPress} />
             </View>
           )}
 
-          {/* COP Toggle */}
           {(modalForInputCurrency === 'COP' || modalForOutputCurrency === 'COP') && (
-            <View className="mb-4 p-3 border border-dashed border-slate-300 dark:border-slate-600 rounded-lg">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-sm font-medium text-slate-700 dark:text-slate-300 flex-1 mr-2">
+            <View style={styles.copToggle}>
+              <View style={styles.copToggleContainer}>
+                <Text style={styles.copToggleTitle}>
                   Multiplicar entrada de COP por mil
                 </Text>
                 <Switch
@@ -214,26 +399,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   value={appSettings.copMultiplyByThousand}
                 />
               </View>
-              <Text className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <Text style={styles.copToggleDescription}>
                 Si al usar Pesos (COP) como moneda de entrada, ingresa '20' en lugar de '20.000', active esta opción.
               </Text>
             </View>
           )}
-           <View className="h-20" />{/* Spacer for footer */}
+           <View style={styles.spacer} />
         </ScrollView>
 
-        {/* Footer */}
-        <View className="flex-row justify-end space-x-3 p-4 border-t border-slate-200 dark:border-slate-700">
+        <View style={styles.footer}>
           <TouchableOpacity
             onPress={onClose}
-            className="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-600">
-            <Text className="text-slate-700 dark:text-slate-200 font-bold">Cancelar</Text>
+            style={styles.cancelButton}>
+            <Text style={styles.cancelButtonText}>Cancelar</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSave}
             disabled={isSaveDisabled}
-            className={`px-4 py-2 rounded-lg ${isSaveDisabled ? 'bg-slate-400 dark:bg-slate-500' : 'bg-indigo-600'}`}>
-            <Text className="text-white font-bold">{saveButtonText}</Text>
+            style={[styles.saveButton, isSaveDisabled ? styles.disabledSaveButton : styles.enabledSaveButton]}>
+            <Text style={styles.saveButtonText}>{saveButtonText}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

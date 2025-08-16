@@ -1,4 +1,3 @@
-
 export type Currency = 'VES' | 'COP' | 'USD' | 'EUR';
 
 export type RateEntrySource = 'BCV' | 'BANREP' | 'BCE' | 'Manual' | 'Derivada' | 'System';

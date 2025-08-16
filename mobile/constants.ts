@@ -1,4 +1,3 @@
-
 import { Currency, ExchangeRateState, AppSettings, AllExchangeRates } from './types';
 
 export const CURRENCIES: Currency[] = ['VES', 'COP', 'USD', 'EUR'];
@@ -62,4 +61,3 @@ export const KEYPAD_LAYOUT: string[][] = [
   ['1', '2',  '3', '-'],
   ['0', ',', '=', '+'],
 ];
-

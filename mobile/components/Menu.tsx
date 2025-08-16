@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { AppSettings, ActiveView } from '../types';
 import { CloseIcon } from './icons/CloseIcon';
 import { DarkModeIcon } from './icons/DarkModeIcon';
@@ -18,6 +18,7 @@ interface MenuProps {
 }
 
 export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppSettingsChange, setActiveView, onUpdateRates }) => {
+  const isDarkMode = appSettings.darkMode;
 
   const toggleDarkMode = () => {
     onClose();
@@ -34,6 +35,72 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
     onClose();
   };
 
+  const styles = StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    menuContainer: {
+      width: '80%',
+      maxWidth: 384,
+      backgroundColor: isDarkMode ? '#1e293b' : '#fff',
+      height: '100%',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 12 },
+      shadowOpacity: 0.58,
+      shadowRadius: 16.00,
+      elevation: 24,
+    },
+    menuContent: {
+      padding: 20,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '600',
+      color: isDarkMode ? '#818cf8' : '#4f46e5',
+    },
+    closeButton: {
+      padding: 8,
+      borderRadius: 9999,
+    },
+    section: {
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: '500',
+      color: isDarkMode ? '#e2e8f0' : '#334155',
+      marginBottom: 8,
+    },
+    button: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: isDarkMode ? '#334155' : '#f1f5f9',
+      borderRadius: 8,
+    },
+    buttonText: {
+      color: isDarkMode ? '#e2e8f0' : '#334155',
+    },
+    linksContainer: {
+      // space-y-2 handled by adding marginBottom to children
+    },
+    linkButton: {
+      marginBottom: 8,
+    },
+    icon: {
+      marginRight: 12,
+    },
+  });
+
   return (
     <Modal
       animationType="slide"
@@ -42,57 +109,55 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
       onRequestClose={onClose}
     >
       <TouchableWithoutFeedback onPress={onClose}>
-        <View className="flex-1 bg-black/50">
+        <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback>
-            <SafeAreaView className="w-4/5 max-w-sm bg-white dark:bg-slate-800 h-full shadow-xl">
-              <View className="p-5">
-                <View className="flex-row justify-between items-center mb-6">
-                  <Text className="text-2xl font-semibold text-indigo-600 dark:text-indigo-400">Menú</Text>
-                  <TouchableOpacity onPress={onClose} className="p-2 rounded-full" accessibilityLabel="Cerrar menú">
-                    <CloseIcon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+            <SafeAreaView style={styles.menuContainer}>
+              <View style={styles.menuContent}>
+                <View style={styles.header}>
+                  <Text style={styles.title}>Menú</Text>
+                  <TouchableOpacity onPress={onClose} style={styles.closeButton} accessibilityLabel="Cerrar menú">
+                    <CloseIcon width={24} height={24} stroke={isDarkMode ? '#cbd5e1' : '#475569'} />
                   </TouchableOpacity>
                 </View>
 
-                {/* Dark Mode Toggle */}
-                <View className="mb-6">
-                  <Text className="text-lg font-medium text-slate-700 dark:text-slate-200 mb-2">Tema</Text>
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Tema</Text>
                   <TouchableOpacity 
                     onPress={toggleDarkMode} 
-                    className="w-full flex-row items-center justify-between px-4 py-3 bg-slate-100 dark:bg-slate-700 rounded-lg"
-                    accessibilityLabel={`Cambiar a modo ${appSettings.darkMode ? 'claro' : 'oscuro'}`}
+                    style={styles.button}
+                    accessibilityLabel={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
                   >
-                    <Text className="text-slate-700 dark:text-slate-200">{appSettings.darkMode ? 'Modo Oscuro' : 'Modo Claro'}</Text>
-                    {appSettings.darkMode ? <LightModeIcon className="w-5 h-5 text-yellow-400" /> : <DarkModeIcon className="w-5 h-5 text-slate-500" />}
+                    <Text style={styles.buttonText}>{isDarkMode ? 'Modo Oscuro' : 'Modo Claro'}</Text>
+                    {isDarkMode ? <LightModeIcon width={20} height={20} stroke="#facc15" /> : <DarkModeIcon width={20} height={20} stroke="#64748b" />}
                   </TouchableOpacity>
                 </View>
                 
-                {/* Navigation Links */}
-                <View className="mb-6">
-                    <Text className="text-lg font-medium text-slate-700 dark:text-slate-200 mb-2">Secciones</Text>
-                    <View className="space-y-2">
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Secciones</Text>
+                    <View style={styles.linksContainer}>
                         <TouchableOpacity 
                             onPress={handleUpdateRatesClick}
-                            className="w-full flex-row items-center px-4 py-3 bg-slate-100 dark:bg-slate-700 rounded-lg"
+                            style={[styles.button, styles.linkButton]}
                             accessibilityLabel="Actualizar tasas de cambio"
                         >
-                            <SyncIcon className="w-5 h-5 mr-3 text-indigo-500 dark:text-indigo-400"/>
-                            <Text className="text-slate-700 dark:text-slate-200">Actualizar Tasas</Text>
+                            <SyncIcon width={20} height={20} style={styles.icon} stroke={isDarkMode ? '#818cf8' : '#6366f1'}/>
+                            <Text style={styles.buttonText}>Actualizar Tasas</Text>
                         </TouchableOpacity>
                         <TouchableOpacity 
                             onPress={() => navigateTo('history')}
-                            className="w-full flex-row items-center px-4 py-3 bg-slate-100 dark:bg-slate-700 rounded-lg"
+                            style={[styles.button, styles.linkButton]}
                             accessibilityLabel="Ver historial de operaciones"
                         >
-                            <HistoryIcon className="w-5 h-5 mr-3 text-indigo-500 dark:text-indigo-400"/>
-                            <Text className="text-slate-700 dark:text-slate-200">Ver Historial</Text>
+                            <HistoryIcon width={20} height={20} style={styles.icon} stroke={isDarkMode ? '#818cf8' : '#6366f1'}/>
+                            <Text style={styles.buttonText}>Ver Historial</Text>
                         </TouchableOpacity>
                         <TouchableOpacity 
                             onPress={() => navigateTo('about')}
-                            className="w-full flex-row items-center px-4 py-3 bg-slate-100 dark:bg-slate-700 rounded-lg"
+                            style={styles.button}
                             accessibilityLabel="Ver información de la aplicación"
                         >
-                            <InfoIcon className="w-5 h-5 mr-3 text-indigo-500 dark:text-indigo-400"/>
-                            <Text className="text-slate-700 dark:text-slate-200">Acerca de</Text>
+                            <InfoIcon width={20} height={20} style={styles.icon} stroke={isDarkMode ? '#818cf8' : '#6366f1'}/>
+                            <Text style={styles.buttonText}>Acerca de</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

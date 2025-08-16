@@ -1,10 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { KEYPAD_LAYOUT } from '../constants';
 
 interface KeypadProps {
   onKeyPress: (key: string) => void;
-  className?: string;
 }
 
 const getAriaLabelForKey = (key: string): string => {
@@ -23,45 +22,85 @@ const getAriaLabelForKey = (key: string): string => {
   }
 };
 
-export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, className }) => {
+export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  const getButtonStyles = (key: string) => {
+    const isOperator = ['/', '*', '-', '+', '%'].includes(key);
+    const isEqual = key === '=';
+    const isClear = key === 'C';
+    const isBackspace = key === '⌫';
+    const isSpecialFn = ['( )'].includes(key);
+
+    const buttonStyles: any[] = [styles.button];
+    const textStyles: any[] = [styles.text];
+
+    if (isEqual) {
+      buttonStyles.push(styles.equalButton);
+      textStyles.push(styles.whiteText);
+    } else if (isOperator) {
+      buttonStyles.push(isDarkMode ? styles.darkOperatorButton : styles.lightOperatorButton);
+      textStyles.push(isDarkMode ? styles.whiteText : styles.darkText);
+    } else if (isClear || isBackspace) {
+      buttonStyles.push(styles.clearButton);
+      textStyles.push(styles.whiteText);
+    } else if (isSpecialFn) {
+      buttonStyles.push(isDarkMode ? styles.darkSpecialFnButton : styles.lightSpecialFnButton);
+      textStyles.push(isDarkMode ? styles.lightText : styles.darkText);
+    } else { // Numbers and comma
+      buttonStyles.push(isDarkMode ? styles.darkNumberButton : styles.lightNumberButton);
+      textStyles.push(isDarkMode ? styles.whiteText : styles.darkText);
+    }
+
+    return { button: buttonStyles, text: textStyles };
+  };
+
+  const styles = StyleSheet.create({
+    root: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      height: '100%',
+      padding: 2,
+      backgroundColor: isDarkMode ? '#1e293b' : '#cbd5e1',
+    },
+    button: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 2,
+      minWidth: '23%',
+      margin: '0.5%',
+    },
+    text: {
+      fontWeight: '500',
+      fontSize: 24,
+    },
+    equalButton: { backgroundColor: '#4f46e5' },
+    lightOperatorButton: { backgroundColor: '#94a3b8' },
+    darkOperatorButton: { backgroundColor: '#475569' },
+    clearButton: { backgroundColor: '#f87171' },
+    lightSpecialFnButton: { backgroundColor: '#e2e8f0' },
+    darkSpecialFnButton: { backgroundColor: '#64748b' },
+    lightNumberButton: { backgroundColor: '#fff' },
+    darkNumberButton: { backgroundColor: '#334155' },
+    whiteText: { color: '#fff' },
+    darkText: { color: '#1e293b' },
+    lightText: { color: '#f1f5f9' },
+  });
+
   return (
-    <View className={`flex-row flex-wrap h-full p-0.5 bg-slate-300 dark:bg-slate-800 ${className || ''}`}>
+    <View style={styles.root}>
       {KEYPAD_LAYOUT.flat().map((key, index) => {
-        const isOperator = ['/', '*', '-', '+', '%'].includes(key);
-        const isEqual = key === '=';
-        const isClear = key === 'C';
-        const isBackspace = key === '⌫';
-        const isSpecialFn = ['( )'].includes(key);
-
-        let buttonClass = 'flex-1 items-center justify-center rounded-sm min-w-[24%] m-[0.5%]';
-        let textClass = 'font-medium text-2xl';
-
-        if (isEqual) {
-          buttonClass += ' bg-indigo-600 active:bg-indigo-700';
-          textClass += ' text-white';
-        } else if (isOperator) {
-          buttonClass += " bg-slate-400 active:bg-slate-500 dark:bg-slate-600 dark:active:bg-slate-500";
-          textClass += " text-slate-800 dark:text-white";
-        } else if (isClear || isBackspace) {
-           buttonClass += ' bg-red-400 active:bg-red-500';
-           textClass += ' text-white';
-        } else if (isSpecialFn) {
-            buttonClass += " bg-slate-200 active:bg-slate-300 dark:bg-slate-500 dark:active:bg-slate-400";
-            textClass += " text-slate-700 dark:text-slate-100";
-        }
-         else { // Numbers and comma
-          buttonClass += " bg-white active:bg-slate-100 dark:bg-slate-700 dark:active:bg-slate-600";
-          textClass += " text-slate-800 dark:text-white";
-        }
-
+        const { button, text } = getButtonStyles(key);
         return (
           <TouchableOpacity
             key={index}
             onPress={() => onKeyPress(key)}
-            className={buttonClass}
+            style={button}
             accessibilityLabel={getAriaLabelForKey(key)}
           >
-            <Text className={textClass}>{key}</Text>
+            <Text style={text}>{key}</Text>
           </TouchableOpacity>
         );
       })}

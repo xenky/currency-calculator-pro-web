@@ -1,4 +1,3 @@
-
 import { AppSettings, FetchedCloudRates, Currency } from '../types';
 
 /**
