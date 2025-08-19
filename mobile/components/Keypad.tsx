@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { KEYPAD_LAYOUT } from '../constants';
 
 interface KeypadProps {
@@ -70,6 +70,7 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
       justifyContent: 'center',
       borderRadius: 2,
       minWidth: '23%',
+      
       margin: '0.5%',
     },
     text: {

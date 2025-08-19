@@ -1,8 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, useColorScheme } from 'react-native';
-import { Currency } from '../types';
+import React, { useEffect, useRef } from 'react';
+import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { CURRENCY_LABELS } from '../constants';
 import { formatNumberForDisplay } from '../services/calculatorService';
+import { Currency } from '../types';
 
 interface InputDisplayProps {
   value: string;

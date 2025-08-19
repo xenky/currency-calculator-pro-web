@@ -1,11 +1,12 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, SafeAreaView, TouchableWithoutFeedback, StyleSheet } from 'react-native';
-import { AppSettings, ActiveView } from '../types';
+import { Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import ".././global.css";
+import { ActiveView, AppSettings } from '../types';
 import { CloseIcon } from './icons/CloseIcon';
 import { DarkModeIcon } from './icons/DarkModeIcon';
-import { LightModeIcon } from './icons/LightModeIcon';
 import { HistoryIcon } from './icons/HistoryIcon';
 import { InfoIcon } from './icons/InfoIcon';
+import { LightModeIcon } from './icons/LightModeIcon';
 import { SyncIcon } from './icons/SyncIcon';
 
 interface MenuProps {

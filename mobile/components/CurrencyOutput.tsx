@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
-import { Currency, ConversionRateInfo } from '../types';
+import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { CURRENCY_LABELS } from '../constants';
 import { formatNumberForDisplay } from '../services/calculatorService';
+import { ConversionRateInfo, Currency } from '../types';
 import { SettingsIcon } from './icons/SettingsIcon';
 
 interface CurrencyOutputProps {
@@ -93,6 +93,7 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
       flexShrink: 0,
       height: '100%',
       alignItems: 'center',
+      justifyContent:'center',
     },
   });
 

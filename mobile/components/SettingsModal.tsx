@@ -1,11 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, SafeAreaView, ScrollView, Switch, StyleSheet } from 'react-native';
-import { Currency, AllExchangeRates, AppSettings, RateEntry } from '../types';
-import { RateMatrix, createOrderedPairKey, getFullRateMatrix } from '../services/exchangeRateService';
-import { CURRENCY_LABELS, CURRENCY_LABELS_SINGULAR, CURRENCY_VALUE_RANK } from '../constants';
-import { formatNumberForDisplay, parseDisplayNumber } from '../services/calculatorService';
-import { NumericInputKeypad } from './NumericInputKeypad';
-import { CloseIcon } from './icons/CloseIcon';
+import React, { useEffect, useState } from "react";
+import { Modal, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import ".././global.css";
+import {
+  CURRENCY_LABELS,
+  CURRENCY_LABELS_SINGULAR,
+  CURRENCY_VALUE_RANK,
+} from "../constants";
+import {
+  formatNumberForDisplay,
+  parseDisplayNumber,
+} from "../services/calculatorService";
+import {
+  RateMatrix,
+  createOrderedPairKey,
+  getFullRateMatrix,
+} from "../services/exchangeRateService";
+import { AllExchangeRates, AppSettings, Currency, RateEntry } from "../types";
+import { NumericInputKeypad } from "./NumericInputKeypad";
+import { CloseIcon } from "./icons/CloseIcon";
 
 let isNewRate = true;
 
@@ -16,50 +28,122 @@ interface SettingsModalProps {
   modalForOutputCurrency: Currency;
   officialRatesData: AllExchangeRates;
   manualRatesData: AllExchangeRates;
-  preferredRateTypes: { [pairKey: string]: 'oficial' | 'manual' };
+  preferredRateTypes: { [pairKey: string]: "oficial" | "manual" };
   rateMatrix: RateMatrix;
   onSaveManualRate: (base: Currency, quote: Currency, rate: number) => void;
-  onSetPreferredRateType: (pairKey: string, type: 'oficial' | 'manual') => void;
+  onSetPreferredRateType: (pairKey: string, type: "oficial" | "manual") => void;
   appSettings: AppSettings;
   onAppSettingsChange: (settings: AppSettings) => void;
   lastUpdateDate: string | null;
 }
 
-type RateTypeSelection = 'Oficial' | 'Manual';
+type RateTypeSelection = "Oficial" | "Manual";
 
 const formatVenezuelanDate = (utcDateString: string | null): string => {
-  if (!utcDateString) return 'No disponible';
+  if (!utcDateString) return "No disponible";
+
   try {
-    const date = new Date(utcDateString);
-    if (isNaN(date.getTime())) throw new Error('Invalid date');
-    date.setHours(date.getHours() - 4);
-    return date.toLocaleString('es-VE', {
-      year: '2-digit',
-      month: 'numeric',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).replace(/\. /g, '.');
+    // Formato esperado: "DD/MM/YYYY HH:mm AM/PM"
+    const parts = utcDateString.match(
+      /(\d{2})\/(\d{2})\/(\d{4}) (\d{1,2}):(\d{2}) (AM|PM)/i
+    );
+
+    if (!parts) {
+      // Fallback por si el formato cambia a uno estándar en el futuro
+      const fallbackDate = new Date(utcDateString);
+      if (isNaN(fallbackDate.getTime())) {
+        throw new Error("Invalid date format after fallback");
+      }
+      fallbackDate.setHours(fallbackDate.getHours() - 4);
+      const formatted = fallbackDate.toLocaleString("es-VE", {
+        year: "2-digit",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      // Corrige el formato de "p. m." a "p.m."
+      return formatted.replace(/\. /g, ".");
+    }
+
+    const [, dayStr, monthStr, yearStr, hourStr, minuteStr, ampm] = parts;
+    const day = parseInt(dayStr, 10);
+    const month = parseInt(monthStr, 10);
+    const year = parseInt(yearStr, 10);
+    let hours = parseInt(hourStr, 10);
+    const minutes = parseInt(minuteStr, 10);
+
+    if (ampm.toLowerCase() === "pm" && hours < 12) {
+      hours += 12;
+    }
+    if (ampm.toLowerCase() === "am" && hours === 12) {
+      // Caso de medianoche (12 AM)
+      hours = 0;
+    }
+
+    // Crear la fecha en UTC. El mes en JS es 0-indexado.
+    const date = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+
+    // Restar 4 horas para ajustar de UTC a VET (UTC-4)
+    date.setUTCHours(date.getUTCHours() - 4);
+
+    // Formatear la fecha manualmente para asegurar el formato exacto
+    const finalDay = date.getUTCDate();
+    const finalMonth = date.getUTCMonth() + 1;
+    const finalYear = date.getUTCFullYear().toString().slice(-2);
+    let finalHours = date.getUTCHours();
+    const finalMinutes = date.getUTCMinutes();
+    const finalAmpm = finalHours >= 12 ? "p.m." : "a.m.";
+
+    finalHours = finalHours % 12;
+    finalHours = finalHours || 12; // La hora 0 debe ser 12
+
+    const formattedMinutes =
+      finalMinutes < 10 ? "0" + finalMinutes : finalMinutes;
+
+    return `${finalDay}/${finalMonth}/${finalYear}, ${finalHours}:${formattedMinutes} ${finalAmpm}`;
   } catch (error) {
     console.error("Error formatting date:", error, "Input was:", utcDateString);
-    return 'Fecha inválida';
+    return "Fecha inválida";
   }
 };
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
-  isOpen, onClose, modalForInputCurrency, modalForOutputCurrency,
-  officialRatesData, manualRatesData, preferredRateTypes,
-  onSaveManualRate, onSetPreferredRateType,
-  appSettings, onAppSettingsChange, lastUpdateDate
+  isOpen,
+  onClose,
+  modalForInputCurrency,
+  modalForOutputCurrency,
+  officialRatesData,
+  manualRatesData,
+  preferredRateTypes,
+  rateMatrix,
+  onSaveManualRate,
+  onSetPreferredRateType,
+  appSettings,
+  onAppSettingsChange,
+  lastUpdateDate,
 }) => {
-  const [manualRateInput, setManualRateInput] = useState<string>('0,00');
-  const [rateTypeSelection, setRateTypeSelection] = useState<RateTypeSelection>('Oficial');
+  const [manualRateInput, setManualRateInput] = useState<string>("0,00");
+  const [rateTypeSelection, setRateTypeSelection] =
+    useState<RateTypeSelection>("Oficial");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const isDarkMode = appSettings.darkMode;
+  const [manualRateAnimationClass, setManualRateAnimationClass] =
+    useState<string>("");
+
+  useEffect(() => {
+    if (rateTypeSelection === "Manual") {
+      setManualRateAnimationClass("rotate-right");
+    } else {
+      setManualRateAnimationClass("rotate-left");
+    }
+  }, [rateTypeSelection]);
 
   let displayBase: Currency, displayQuote: Currency;
-  if (CURRENCY_VALUE_RANK[modalForInputCurrency] >= CURRENCY_VALUE_RANK[modalForOutputCurrency]) {
+  if (
+    CURRENCY_VALUE_RANK[modalForInputCurrency] >=
+    CURRENCY_VALUE_RANK[modalForOutputCurrency]
+  ) {
     displayBase = modalForInputCurrency;
     displayQuote = modalForOutputCurrency;
   } else {
@@ -67,84 +151,184 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     displayQuote = modalForInputCurrency;
   }
 
-  const orderedPairKeyForStorage = createOrderedPairKey(modalForInputCurrency, modalForOutputCurrency);
+  const orderedPairKeyForStorage = createOrderedPairKey(
+    modalForInputCurrency,
+    modalForOutputCurrency
+  );
   const officialRateEntryForPair = officialRatesData[orderedPairKeyForStorage];
   const manualRateEntryForPair = manualRatesData[orderedPairKeyForStorage];
 
   useEffect(() => {
     if (isOpen) {
       setErrorMessage(null);
+
       const currentPreference = preferredRateTypes[orderedPairKeyForStorage];
       const manualRateExists = !!manualRateEntryForPair;
-      let initialSelection: RateTypeSelection = (currentPreference === 'manual' || (!currentPreference && manualRateExists)) ? 'Manual' : 'Oficial';
+
+      let initialSelection: RateTypeSelection = "Oficial";
+      if (currentPreference === "manual") {
+        initialSelection = "Manual";
+      } else if (currentPreference === "oficial") {
+        initialSelection = "Oficial";
+      } else {
+        initialSelection = manualRateExists ? "Manual" : "Oficial";
+      }
       setRateTypeSelection(initialSelection);
 
-      const rateEntryToUse: RateEntry | undefined = manualRateEntryForPair || officialRateEntryForPair;
-      let initialManualInputValue = '0';
-      if (rateEntryToUse) {
-        const higherRank = orderedPairKeyForStorage.split('_')[0] as Currency;
-        const valueForDisplay = displayBase === higherRank ? rateEntryToUse.value : 1 / rateEntryToUse.value;
-        initialManualInputValue = formatNumberForDisplay(valueForDisplay, 2, true);
+      let initialManualInputValue = "0";
+      const rateEntryToUseForManualField: RateEntry | undefined =
+        manualRateEntryForPair || officialRateEntryForPair;
+
+      if (rateEntryToUseForManualField) {
+        const higherRankCurrencyOfPair = orderedPairKeyForStorage.split(
+          "_"
+        )[0] as Currency;
+        let valueForDisplay: number;
+        if (displayBase === higherRankCurrencyOfPair) {
+          valueForDisplay = rateEntryToUseForManualField.value;
+        } else {
+          valueForDisplay = 1 / rateEntryToUseForManualField.value;
+        }
+        initialManualInputValue = formatNumberForDisplay(
+          valueForDisplay,
+          2,
+          true
+        );
       }
       setManualRateInput(initialManualInputValue);
     }
-  }, [isOpen, orderedPairKeyForStorage, officialRatesData, manualRatesData, preferredRateTypes, displayBase, displayQuote, manualRateEntryForPair, officialRateEntryForPair]);
+  }, [
+    isOpen,
+    orderedPairKeyForStorage,
+    officialRatesData,
+    manualRatesData,
+    preferredRateTypes,
+    displayBase,
+    displayQuote,
+    manualRateEntryForPair,
+    officialRateEntryForPair,
+  ]);
 
   const handleNumericKeypadPress = (key: string) => {
-    if (rateTypeSelection !== 'Manual') return;
+    if (rateTypeSelection !== "Manual") return;
     setErrorMessage(null);
 
-    if (key === 'C') setManualRateInput('0');
-    else if (key === '⌫') setManualRateInput(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
-    else if (key === ',') {
-      if (!manualRateInput.includes(',')) setManualRateInput(manualRateInput + ',');
+    if (key === "C") {
+      setManualRateInput("0");
+    } else if (key === "⌫") {
+      setManualRateInput((prev) => (prev.length > 1 ? prev.slice(0, -1) : "0"));
+    } else if (key === ",") {
+      if (!manualRateInput.includes(",")) {
+        setManualRateInput(manualRateInput + ",");
+      }
     } else {
-      if (manualRateInput === '0' && key !== ',') setManualRateInput(key);
-      else if (isNewRate) {
+      if (manualRateInput === "0" && key !== ",") {
+        setManualRateInput(key);
+      } else if (isNewRate) {
         setManualRateInput(key);
         isNewRate = false;
       } else {
-        if (manualRateInput.length < 15) setManualRateInput(manualRateInput + key);
+        if (manualRateInput.length < 15) {
+          setManualRateInput(manualRateInput + key);
+        }
       }
     }
   };
 
   const handleSave = () => {
-    if (rateTypeSelection === 'Manual') {
+    if (rateTypeSelection === "Manual") {
       const userInputRate = parseDisplayNumber(manualRateInput);
       if (isNaN(userInputRate) || userInputRate <= 0) {
-        setErrorMessage('Tasa inválida. Ingrese un valor positivo.');
+        setErrorMessage(
+          "Por favor ingrese una tasa de cambio válida y positiva."
+        );
         return;
       }
       setErrorMessage(null);
-      const rateToStore = displayBase === modalForInputCurrency ? userInputRate : 1 / userInputRate;
-      onSaveManualRate(modalForInputCurrency, modalForOutputCurrency, rateToStore);
-      onSetPreferredRateType(orderedPairKeyForStorage, 'manual');
+
+      let rateToStoreForActualPair: number;
+      if (displayBase === modalForInputCurrency) {
+        rateToStoreForActualPair = userInputRate;
+      } else {
+        rateToStoreForActualPair = 1 / userInputRate;
+      }
+      onSaveManualRate(
+        modalForInputCurrency,
+        modalForOutputCurrency,
+        rateToStoreForActualPair
+      );
+      onSetPreferredRateType(orderedPairKeyForStorage, "manual");
     } else {
-      onSetPreferredRateType(orderedPairKeyForStorage, 'oficial');
+      // rateTypeSelection === 'Oficial'
+      onSetPreferredRateType(orderedPairKeyForStorage, "oficial");
     }
     isNewRate = true;
     onClose();
   };
 
   const handleCopMultiplyToggle = () => {
-    onAppSettingsChange({ ...appSettings, copMultiplyByThousand: !appSettings.copMultiplyByThousand });
+    onAppSettingsChange({
+      ...appSettings,
+      copMultiplyByThousand: !appSettings.copMultiplyByThousand,
+    });
   };
 
-  let automaticRateDisplayString = 'Tasa Automática no disponible';
-  const officialRateMatrix = getFullRateMatrix(officialRatesData, officialRatesData);
+  if (!isOpen) return null;
+
+  let automaticRateDisplayString = "Tasa Automática no disponible";
+  // Create a matrix based purely on official rates to show the correct automatic rate.
+  const officialRateMatrix = getFullRateMatrix(
+    officialRatesData,
+    officialRatesData
+  );
   const derivedRateFromMatrix = officialRateMatrix[displayBase]?.[displayQuote];
 
   if (officialRateEntryForPair) {
-    const higherRank = orderedPairKeyForStorage.split('_')[0] as Currency;
-    const value = displayBase === higherRank ? officialRateEntryForPair.value : 1 / officialRateEntryForPair.value;
-    automaticRateDisplayString = `1 ${CURRENCY_LABELS_SINGULAR[displayBase]} = ${formatNumberForDisplay(value, 2, true)} ${CURRENCY_LABELS[displayQuote]} (Fuente: ${officialRateEntryForPair.source})`;
-  } else if (derivedRateFromMatrix?.value > 0) {
+    let officialValueForDisplay: number;
+    const higherRankCurrencyOfPair = orderedPairKeyForStorage.split(
+      "_"
+    )[0] as Currency;
+    if (displayBase === higherRankCurrencyOfPair) {
+      officialValueForDisplay = officialRateEntryForPair.value;
+    } else {
+      officialValueForDisplay = 1 / officialRateEntryForPair.value;
+    }
+    automaticRateDisplayString = `1 ${CURRENCY_LABELS_SINGULAR[displayBase]} = ${formatNumberForDisplay(officialValueForDisplay, 2, true)} ${CURRENCY_LABELS[displayQuote]} (Fuente: ${officialRateEntryForPair.source})`;
+  } else if (
+    derivedRateFromMatrix &&
+    derivedRateFromMatrix.value > 0 &&
+    derivedRateFromMatrix.source !== "No Disponible"
+  ) {
     automaticRateDisplayString = `1 ${CURRENCY_LABELS_SINGULAR[displayBase]} = ${formatNumberForDisplay(derivedRateFromMatrix.value, 2, true)} ${CURRENCY_LABELS[displayQuote]} (Fuente: Derivada)`;
   }
 
-  const saveButtonText = rateTypeSelection === 'Manual' ? 'Guardar Tasa Manual' : 'Usar Tasa Automática';
+  const saveButtonText =
+    rateTypeSelection === "Manual"
+      ? "Guardar Tasa Manual"
+      : "Usar Tasa Automática";
+  let saveButtonDisabled = false;
+
+  if (errorMessage) {
+    saveButtonDisabled = true;
+  } else if (rateTypeSelection === "Oficial") {
+    const currentActivePreference =
+      preferredRateTypes[orderedPairKeyForStorage];
+    const isEffectivelyOfficial =
+      currentActivePreference === "oficial" ||
+      (!currentActivePreference && !manualRateEntryForPair);
+    if (isEffectivelyOfficial) {
+      saveButtonDisabled = true;
+    }
+  } else {
+    // Manual
+    if (parseDisplayNumber(manualRateInput) <= 0) {
+      saveButtonDisabled = true;
+    }
+  }
+
   const isSaveDisabled = errorMessage ? true : rateTypeSelection === 'Oficial' ? (preferredRateTypes[orderedPairKeyForStorage] === 'oficial' || (!preferredRateTypes[orderedPairKeyForStorage] && !manualRateEntryForPair)) : parseDisplayNumber(manualRateInput) <= 0;
+
+  const isDarkMode = appSettings.darkMode;
 
   const styles = StyleSheet.create({
     safeArea: {

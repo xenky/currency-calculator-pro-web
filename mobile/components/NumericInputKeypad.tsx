@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { BackspaceIcon } from './icons/BackspaceIcon';
 
 interface NumericInputKeypadProps {

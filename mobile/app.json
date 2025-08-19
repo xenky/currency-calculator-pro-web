@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
-    "version": "1.0.0",
+    "name": "calculadora-divisas-mobile",
+    "slug": "calculadora-divisas-mobile",
+    "version": "1.1.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "calculadoradivisasmobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

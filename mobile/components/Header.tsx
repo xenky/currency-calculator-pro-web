@@ -1,8 +1,10 @@
+
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { Pressable, View } from 'react-native';
+import ".././global.css";
 import { ActiveView } from '../types';
-import { MenuIcon } from './icons/MenuIcon';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
+import { MenuIcon } from './icons/MenuIcon';
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -17,60 +19,20 @@ export const Header: React.FC<HeaderProps> = ({
   headerTitle,
   onNavigateBack
 }) => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
-
-  const styles = StyleSheet.create({
-    root: {
-      backgroundColor: isDarkMode ? '#1e293b' : '#4f46e5',
-      padding: 12,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 4.65,
-      elevation: 8,
-    },
-    container: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    touchable: {
-      padding: 8,
-      borderRadius: 9999,
-    },
-    placeholder: {
-      width: 40,
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: '600',
-      color: '#fff',
-    },
-  });
-
   return (
-    <View style={styles.root}>
-      <View style={styles.container}>
+    <View className="bg-indigo-600 dark:bg-slate-800 text-white p-3 shadow-md flex-shrink-0">
+      <View className="flex justify-between items-center">
         {activeView !== 'calculator' ? (
-          <TouchableOpacity 
-            onPress={onNavigateBack} 
-            style={styles.touchable}
-            accessibilityLabel="Volver"
-          >
-            <ArrowLeftIcon width={24} height={24} stroke="#fff" />
-          </TouchableOpacity>
+          <Pressable onPress={onNavigateBack} className="p-2 rounded-full hover:bg-indigo-700 dark:hover:bg-slate-700" accessibilityLabel="Volver">
+            <ArrowLeftIcon className="w-6 h-6" />
+          </Pressable>
         ) : (
-          <View style={styles.placeholder} /> // Placeholder for spacing
+          <View className="w-10"></View> // Placeholder for spacing consistency when back button is not shown
         )}
-        <Text style={styles.title}>{headerTitle}</Text>
-        <TouchableOpacity 
-          onPress={onMenuToggle} 
-          style={styles.touchable}
-          accessibilityLabel="Abrir menú"
-        >
-          <MenuIcon width={24} height={24} stroke="#fff" />
-        </TouchableOpacity>
+        <View className="text-xl font-semibold text-center">{headerTitle}</View>
+        <Pressable onPress={onMenuToggle} className="p-2 rounded-full hover:bg-indigo-700 dark:hover:bg-slate-700" accessibilityLabel="Abrir menú">
+          <MenuIcon className="w-6 h-6" />
+        </Pressable>
       </View>
     </View>
   );

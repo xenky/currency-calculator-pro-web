@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, ScrollView, SafeAreaView, StyleSheet, useColorScheme } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import ".././global.css";
+import CoffeeCupIcon from './icons/CoffeeCupIcon';
 import { HeartIcon } from './icons/HeartIcon';
-import { CoffeeCupIcon } from './icons/CoffeeCupIcon';
 
 const ListItem: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const colorScheme = useColorScheme();

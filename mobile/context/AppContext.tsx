@@ -1,15 +1,14 @@
 
-import React, { createContext, useContext, useState } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { AppSettings, HistoryEntry, ExchangeRateState } from '@/types';
-import { initialAppSettings, initialExchangeRateState } from '@/constants';
+import React, { createContext, useContext } from 'react';
+import { initialAppSettings, initialExchangeRateState } from '../constants';
+import { AppSettings, ExchangeRateState, HistoryEntry } from '../types';
 
 interface AppContextType {
   appSettings: AppSettings;
   setAppSettings: React.Dispatch<React.SetStateAction<AppSettings>>;
   history: HistoryEntry[];
   setHistory: React.Dispatch<React.SetStateAction<HistoryEntry[]>>;
-  /* about: about; */
   exchangeRateState: ExchangeRateState;
   setExchangeRates: React.Dispatch<React.SetStateAction<ExchangeRateState>>;
 }
@@ -24,7 +23,6 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   const value = {
     appSettings,
     setAppSettings,
-    /* about, */
     history,
     setHistory,
     exchangeRateState,
