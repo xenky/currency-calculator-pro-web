@@ -412,7 +412,7 @@ const App: React.FC = () => {
   if (activeView === 'history') headerTitle = "Historial de Operaciones";
   else if (activeView === 'about') headerTitle = "Acerca de la Aplicación";
 
-  const renderCalculatorView = () => {
+  /* const renderCalculatorView = () => {
     const containerClasses = `flex flex-col flex-grow  overflow-hidden ${isMobileLandscape ? styles['landscape-container'] : 'mt-1'}`;
     const currencyOutputWrapperClasses = isMobileLandscape ? 'grid grid-cols-1  h-full overflow-y-auto' : 'flex flex-col flex-shrink-0 mx-2 mb-1';
     const keypadWrapperClasses = isMobileLandscape ? '' : 'mx-2 mb-2 grid h-full pb-[env(safe-area-inset-bottom)]';
@@ -473,7 +473,7 @@ const App: React.FC = () => {
         </div>
       </div>
     );
-  };
+  }; */
 
   return (
     <div className={`relative flex flex-col h-screen max-w-md mx-auto bg-slate-200 dark:bg-slate-900 shadow-lg font-sans ${isMobileLandscape ? styles['app-full-width-landscape'] : ''}`}>
@@ -490,7 +490,7 @@ const App: React.FC = () => {
       />
 
       <div className="flex flex-col flex-grow overflow-hidden mt-1">
-        {activeView === 'calculator' && renderCalculatorView()}
+        {/* {activeView === 'calculator' && renderCalculatorView()} */}
         {activeView === 'history' && <HistoryScreen history={history} clearHistory={() => setHistory([])} />}
         {activeView === 'about' && <AboutScreen />}
       </div>

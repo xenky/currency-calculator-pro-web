@@ -1,6 +1,11 @@
 import { evaluate } from "mathjs";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { SafeAreaView, View } from "react-native";
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  Text,
+} from "react-native";
 import ".././global.css";
 import { AboutScreen } from "../components/AboutScreen";
 import { CurrencyOutput } from "../components/CurrencyOutput";
@@ -59,31 +64,7 @@ const App: React.FC = () => {
     initialAppSettings
   );
   const [exchangeRateState, setExchangeRates] =
-    useLocalStorage<ExchangeRateState>("exchangeRates", () => {
-      const storedItem = localStorage.getItem("exchangeRates");
-      if (storedItem) {
-        try {
-          const parsed = JSON.parse(storedItem);
-          if (
-            parsed &&
-            typeof parsed.officialRates === "object" &&
-            typeof parsed.manualRates === "object"
-          ) {
-            return {
-              ...initialExchangeRateState, // Start with defaults
-              ...parsed, // Override with stored values
-              preferredRateTypes: parsed.preferredRateTypes || {},
-            };
-          }
-        } catch (e) {
-          console.warn(
-            "Failed to parse exchange rates from localStorage, using initial values.",
-            e
-          );
-        }
-      }
-      return initialExchangeRateState;
-    });
+    useLocalStorage<ExchangeRateState>("exchangeRates", initialExchangeRateState);
   const [history, setHistory] = useLocalStorage<HistoryEntry[]>(
     "operationHistory",
     []
@@ -262,8 +243,6 @@ const App: React.FC = () => {
       );
     };
   }, [fetchAndUpdateCloudRates]);
-
-  
 
   const handleKeypadPress = (key: string) => {
     const lastChar = input[input.length - 1];
@@ -468,8 +447,8 @@ const App: React.FC = () => {
 
   const renderCalculatorView = () => {
     return (
-      <View className="flex flex-col flex-grow   mt-1">
-        <View className="flex flex-col flex-shrink-0 mx-2 mb-1">
+      <View style={styles.calculatorContainer}>
+        <View style={styles.currencyOutputWrapper}>
           {CURRENCIES.map((currency) => {
             let displayValue: number | null = null;
             let rateDisplayInfo: ConversionRateInfo | null = null;
@@ -530,73 +509,87 @@ const App: React.FC = () => {
           })}
         </View>
 
-        <div className="mx-2 mb-2 grid h-full pb-[env(safe-area-inset-bottom)]">
+        <View style={styles.keypadWrapper}>
           <Keypad
             onKeyPress={handleKeypadPress}
             isModalOpen={isSettingsModalOpen}
           />
-        </div>
+        </View>
       </View>
     );
   };
 
   return (
-    <SafeAreaView>
-      <View className="relative flex flex-col h-screen  bg-slate-200 dark:bg-slate-900 shadow-lg font-sans ">
-        {isUpdateAvailable && (
-          <View className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
-            Tasas de cambio actualizadas.
-          </View>
-        )}
-        <Header
-          onMenuToggle={() => setIsMenuOpen(true)}
-          activeView={activeView}
-          headerTitle={headerTitle}
-          onNavigateBack={() => setActiveView("calculator")}
-        />
+    <SafeAreaView style={styles.container}>
+      {isUpdateAvailable && (
+        <Text className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
+          Tasas de cambio actualizadas.
+        </Text>
+      )}
 
-        <View className="flex flex-col flex-grow overflow-hidden mt-1">
-          {activeView === "calculator" && renderCalculatorView()}
-          {activeView === "history" && (
-            <HistoryScreen
-              history={history}
-              clearHistory={() => setHistory([])}
-            />
-          )}
-          {activeView === "about" && <AboutScreen />}
-        </View>
+      <Header
+        onMenuToggle={() => setIsMenuOpen(true)}
+        activeView={activeView}
+        headerTitle={headerTitle}
+        onNavigateBack={() => setActiveView("calculator")}
+      />
 
-        <Menu
-          isOpen={isMenuOpen}
-          onClose={() => setIsMenuOpen(false)}
-          appSettings={appSettings}
-          onAppSettingsChange={setAppSettings}
-          setActiveView={setActiveView}
-          onUpdateRates={handleManualRateUpdate}
-        />
-
-        {isSettingsModalOpen && editingRateModalParams && (
-          <SettingsModal
-            isOpen={isSettingsModalOpen}
-            onClose={() => setIsSettingsModalOpen(false)}
-            modalForInputCurrency={editingRateModalParams.modalForInputCurrency}
-            modalForOutputCurrency={
-              editingRateModalParams.modalForOutputCurrency
-            }
-            officialRatesData={exchangeRateState.officialRates}
-            manualRatesData={exchangeRateState.manualRates}
-            preferredRateTypes={exchangeRateState.preferredRateTypes}
-            rateMatrix={rateMatrix}
-            onSaveManualRate={handleSaveManualRate}
-            onSetPreferredRateType={handleSetPreferredRateType}
-            appSettings={appSettings}
-            onAppSettingsChange={setAppSettings}
-            lastUpdateDate={ratesLastUpdateDate}
+      <View className="flex flex-col flex-grow overflow-hidden mt-1">
+        {activeView === "calculator" && renderCalculatorView()}
+        {activeView === "history" && (
+          <HistoryScreen
+            history={history}
+            clearHistory={() => setHistory([])}
           />
         )}
+        {activeView === "about" && <AboutScreen />}
       </View>
+
+      <Menu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        appSettings={appSettings}
+        onAppSettingsChange={setAppSettings}
+        setActiveView={setActiveView}
+        onUpdateRates={handleManualRateUpdate}
+      />
+
+      {isSettingsModalOpen && editingRateModalParams && (
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          modalForInputCurrency={editingRateModalParams.modalForInputCurrency}
+          modalForOutputCurrency={editingRateModalParams.modalForOutputCurrency}
+          officialRatesData={exchangeRateState.officialRates}
+          manualRatesData={exchangeRateState.manualRates}
+          preferredRateTypes={exchangeRateState.preferredRateTypes}
+          rateMatrix={rateMatrix}
+          onSaveManualRate={handleSaveManualRate}
+          onSetPreferredRateType={handleSetPreferredRateType}
+          appSettings={appSettings}
+          onAppSettingsChange={setAppSettings}
+          lastUpdateDate={ratesLastUpdateDate}
+        />
+      )}
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f0f0f0",
+  },
+  calculatorContainer: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  currencyOutputWrapper: {
+    /* flex: 1, */
+  },
+  keypadWrapper: {
+    flex: 1,
+  },
+});
 
 export default App;

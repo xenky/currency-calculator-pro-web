@@ -4,6 +4,7 @@ import { KEYPAD_LAYOUT } from '../constants';
 
 interface KeypadProps {
   onKeyPress: (key: string) => void;
+  isModalOpen?: boolean;
 }
 
 const getAriaLabelForKey = (key: string): string => {
@@ -58,20 +59,21 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
 
   const styles = StyleSheet.create({
     root: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      height: '100%',
-      padding: 2,
+      flex: 1,
+      flexDirection: 'column',
       backgroundColor: isDarkMode ? '#1e293b' : '#cbd5e1',
+      padding: 2,
+    },
+    row: {
+      flex: 1,
+      flexDirection: 'row',
     },
     button: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: 2,
-      minWidth: '23%',
-      
-      margin: '0.5%',
+      margin: 2,
     },
     text: {
       fontWeight: '500',
@@ -92,19 +94,23 @@ export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
 
   return (
     <View style={styles.root}>
-      {KEYPAD_LAYOUT.flat().map((key, index) => {
-        const { button, text } = getButtonStyles(key);
-        return (
-          <TouchableOpacity
-            key={index}
-            onPress={() => onKeyPress(key)}
-            style={button}
-            accessibilityLabel={getAriaLabelForKey(key)}
-          >
-            <Text style={text}>{key}</Text>
-          </TouchableOpacity>
-        );
-      })}
+      {KEYPAD_LAYOUT.map((row, rowIndex) => (
+        <View key={rowIndex} style={styles.row}>
+          {row.map((key) => {
+            const { button, text } = getButtonStyles(key);
+            return (
+              <TouchableOpacity
+                key={key}
+                onPress={() => onKeyPress(key)}
+                style={button}
+                accessibilityLabel={getAriaLabelForKey(key)}
+              >
+                <Text style={text}>{key}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      ))}
     </View>
   );
 };

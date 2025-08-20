@@ -1,32 +1,47 @@
+import { useState, useEffect, useCallback } from 'react';
+import AsyncStorage from '@react--native-async-storage/async-storage';
 
-import { useState, useEffect } from 'react';
-
-function getValueFromLocalStorage<T>(key: string, initialValue: T | (() => T)): T {
-  try {
-    const item = window.localStorage.getItem(key);
-    if (item) {
-      return JSON.parse(item);
-    }
-  } catch (error) {
-    console.warn(`Error reading localStorage key "${key}":`, error);
-  }
-  
-  return initialValue instanceof Function ? initialValue() : initialValue;
-}
-
-export function useLocalStorage<T>(key: string, initialValue: T | (() => T)): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    return getValueFromLocalStorage(key, initialValue);
-  });
+export function useLocalStorage<T>(
+  key: string,
+  initialValue: T
+): [T, (value: T | ((val: T) => T)) => void] {
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
 
   useEffect(() => {
-    try {
-      const valueToStore = storedValue;
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
-    }
-  }, [key, storedValue]);
+    const loadValue = async () => {
+      try {
+        const item = await AsyncStorage.getItem(key);
+        if (item !== null) {
+          const loadedValue = JSON.parse(item);
+          // If initialValue is an object, merge to preserve new keys.
+          if (typeof initialValue === 'object' && initialValue !== null && !Array.isArray(initialValue)) {
+            setStoredValue({ ...initialValue, ...loadedValue });
+          } else {
+            setStoredValue(loadedValue);
+          }
+        }
+      } catch (e) {
+        console.warn(`Failed to load value for key "${key}" from async storage:`, e);
+      }
+    };
+    loadValue();
+  }, [key]);
 
-  return [storedValue, setStoredValue];
+  const setValue = useCallback(
+    (value: T | ((val: T) => T)) => {
+      const save = async () => {
+        try {
+          const valueToStore = value instanceof Function ? value(storedValue) : value;
+          setStoredValue(valueToStore);
+          await AsyncStorage.setItem(key, JSON.stringify(valueToStore));
+        } catch (e) {
+          console.warn(`Failed to save value for key "${key}" to async storage:`, e);
+        }
+      };
+      save();
+    },
+    [key, storedValue]
+  );
+
+  return [storedValue, setValue];
 }
