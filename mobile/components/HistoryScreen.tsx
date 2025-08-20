@@ -8,7 +8,6 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import ".././global.css";
 import { CURRENCIES, CURRENCY_LABELS, CURRENCY_SYMBOLS } from "../constants";
 import { formatNumberForDisplay } from "../services/calculatorService";
 import { HistoryEntry } from "../types";
@@ -23,6 +22,7 @@ const HistoryItem: React.FC<{ entry: HistoryEntry }> = ({ entry }) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
 
+  // Styles are self-contained and already migrated, no changes needed here.
   const styles = StyleSheet.create({
     root: {
       padding: 16,
@@ -156,72 +156,29 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
 
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: isDarkMode ? "#0f172a" : "#f1f5f9",
-    },
-    container: {
-      padding: 16,
-      flex: 1,
-    },
-    clearButtonContainer: {
-      marginBottom: 16,
-      flexDirection: "row",
-      justifyContent: "flex-end",
-    },
-    clearButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      backgroundColor: "#ef4444",
-      borderRadius: 8,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
-    clearButtonText: {
-      color: "#fff",
-      fontWeight: "700",
-    },
-    emptyHistoryContainer: {
-      flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    emptyHistoryText: {
-      color: isDarkMode ? "#94a3b8" : "#64748b",
-      fontSize: 18,
-    },
-    separator: {
-      height: 12,
-    },
-    listContent: {
-      paddingBottom: 16,
-    },
-  });
+  const clearButtonStyle = ({ pressed }: { pressed: boolean }) => [
+    styles.clearButton,
+    pressed && styles.clearButtonPressed
+  ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View className="flex flex-col flex-grow p-4 bg-slate-100 dark:bg-slate-900 overflow-hidden">
+    <SafeAreaView style={[styles.safeArea, isDarkMode ? styles.safeAreaDark : styles.safeAreaLight]}>
+      <View style={styles.container}>
         {validHistory.length > 0 && (
-          <View className="mb-4 flex justify-end">
+          <View style={styles.clearButtonContainer}>
             <TouchableOpacity
               onPress={clearHistory}
-              className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-lg shadow transition-colors"
+              style={clearButtonStyle}
               accessibilityLabel="Limpiar historial"
             >
-              <TrashIcon className="w-4 h-4 mr-2" />
-              Limpiar Historial
+              <TrashIcon width={16} height={16} stroke="#FFFFFF" />
+              <Text style={styles.clearButtonText}>Limpiar Historial</Text>
             </TouchableOpacity>
           </View>
         )}
         {validHistory.length === 0 ? (
-          <View className="flex-grow flex items-center justify-center">
-            <Text className="text-slate-500 dark:text-slate-400 text-lg">
+          <View style={styles.emptyHistoryContainer}>
+            <Text style={[styles.emptyHistoryText, isDarkMode ? styles.emptyHistoryTextDark : styles.emptyHistoryTextLight]}>
               No hay operaciones en el historial.
             </Text>
           </View>
@@ -230,7 +187,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
             data={validHistory}
             renderItem={({ item }) => <HistoryItem entry={item} />}
             keyExtractor={(item) => item.id.toString()}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
             contentContainerStyle={styles.listContent}
           />
         )}
@@ -238,3 +195,67 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  safeAreaLight: {
+    backgroundColor: '#f1f5f9', // slate-100
+  },
+  safeAreaDark: {
+    backgroundColor: '#0f172a', // slate-900
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+    overflow: 'hidden',
+  },
+  clearButtonContainer: {
+    marginBottom: 16,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  clearButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "#ef4444", // red-500
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  clearButtonPressed: {
+    backgroundColor: "#dc2626", // red-600
+  },
+  clearButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 8, // for mr-2 on icon
+  },
+  emptyHistoryContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyHistoryText: {
+    fontSize: 18,
+  },
+  emptyHistoryTextLight: {
+    color: '#64748b', // slate-500
+  },
+  emptyHistoryTextDark: {
+    color: '#94a3b8', // slate-400
+  },
+  listSeparator: {
+    height: 12,
+  },
+  listContent: {
+    paddingBottom: 16,
+  },
+});

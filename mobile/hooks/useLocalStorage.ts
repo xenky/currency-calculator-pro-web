@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react--native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function useLocalStorage<T>(
   key: string,
@@ -29,18 +29,20 @@ export function useLocalStorage<T>(
 
   const setValue = useCallback(
     (value: T | ((val: T) => T)) => {
-      const save = async () => {
-        try {
-          const valueToStore = value instanceof Function ? value(storedValue) : value;
-          setStoredValue(valueToStore);
-          await AsyncStorage.setItem(key, JSON.stringify(valueToStore));
-        } catch (e) {
-          console.warn(`Failed to save value for key "${key}" to async storage:`, e);
-        }
-      };
-      save();
+      setStoredValue(prevValue => {
+        const valueToStore = value instanceof Function ? value(prevValue) : value;
+        const save = async () => {
+          try {
+            await AsyncStorage.setItem(key, JSON.stringify(valueToStore));
+          } catch (e) {
+            console.warn(`Failed to save value for key "${key}" to async storage:`, e);
+          }
+        };
+        save();
+        return valueToStore;
+      });
     },
-    [key, storedValue]
+    [key]
   );
 
   return [storedValue, setValue];

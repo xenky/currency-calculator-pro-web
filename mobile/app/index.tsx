@@ -5,8 +5,8 @@ import {
   View,
   StyleSheet,
   Text,
+  useColorScheme,
 } from "react-native";
-import ".././global.css";
 import { AboutScreen } from "../components/AboutScreen";
 import { CurrencyOutput } from "../components/CurrencyOutput";
 import { Header } from "../components/Header";
@@ -127,14 +127,6 @@ const App: React.FC = () => {
     );
   }, [activeRateData, exchangeRateState.officialRates]);
 
-  useEffect(() => {
-    if (appSettings.darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [appSettings.darkMode]);
-
   const fetchAndUpdateCloudRates = useCallback(async () => {
     try {
       const cloudData = await fetchOfficialRates();
@@ -211,37 +203,18 @@ const App: React.FC = () => {
     [activeInputCurrency, appSettings, rateMatrix, setHistory]
   );
 
-  //Revisar luego para verificar su USO
   useEffect(() => {
-    // Initial fetch on app load (silently)
+    // Initial fetch on app load
     fetchAndUpdateCloudRates();
 
-    const handleSWMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === "RATES_UPDATED") {
-        console.log(
-          "App received RATES_UPDATED message from SW. Refetching silently..."
-        );
-        fetchAndUpdateCloudRates();
-      }
-    };
-    navigator.serviceWorker?.addEventListener("message", handleSWMessage);
+    // Set up hourly fetching
+    const intervalId = setInterval(() => {
+      console.log("Performing scheduled hourly rate update...");
+      fetchAndUpdateCloudRates();
+    }, 3600000); // 1 hour in milliseconds
 
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      const dontShowAgain = localStorage.getItem("dontShowInstallPrompt");
-      const isStandalone = window.matchMedia(
-        "(display-mode: standalone)"
-      ).matches;
-    };
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    return () => {
-      navigator.serviceWorker?.removeEventListener("message", handleSWMessage);
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt
-      );
-    };
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, [fetchAndUpdateCloudRates]);
 
   const handleKeypadPress = (key: string) => {
@@ -519,12 +492,17 @@ const App: React.FC = () => {
     );
   };
 
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, isDarkMode ? styles.containerDark : {}]}>
       {isUpdateAvailable && (
-        <Text className="absolute top-2 left-1/2 -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300">
-          Tasas de cambio actualizadas.
-        </Text>
+        <View style={styles.updateNotificationContainer}>
+          <Text style={styles.updateNotificationText}>
+            Tasas de cambio actualizadas.
+          </Text>
+        </View>
       )}
 
       <Header
@@ -534,7 +512,7 @@ const App: React.FC = () => {
         onNavigateBack={() => setActiveView("calculator")}
       />
 
-      <View className="flex flex-col flex-grow overflow-hidden mt-1">
+      <View style={styles.contentContainer}>
         {activeView === "calculator" && renderCalculatorView()}
         {activeView === "history" && (
           <HistoryScreen
@@ -579,6 +557,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f0f0f0",
+  },
+  containerDark: {
+    backgroundColor: "#0f172a", // Adjust to your dark mode background
+  },
+  updateNotificationContainer: {
+    backgroundColor: '#22c55e', // green-500
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    position: 'absolute',
+    top: 40, // Adjust as needed
+    left: '25%',
+    right: '25%',
+    zIndex: 50,
+    alignItems: 'center',
+  },
+  updateNotificationText: {
+    color: '#ffffff',
+    fontWeight: '500',
+  },
+  contentContainer: {
+    flex: 1,
+    flexDirection: "column",
+    overflow: "hidden",
+    marginTop: 4,
   },
   calculatorContainer: {
     flex: 1,
