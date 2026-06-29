@@ -24,8 +24,10 @@ export interface ExchangeRateState {
 }
 
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export interface AppSettings {
-  darkMode: boolean;
+  theme: ThemeMode;
   copMultiplyByThousand: boolean;
 }
 

@@ -50,7 +50,7 @@ export const initialExchangeRateState: ExchangeRateState = {
 
 
 export const initialAppSettings: AppSettings = {
-  darkMode: false,
+  theme: 'system',
   copMultiplyByThousand: false,
 };
 

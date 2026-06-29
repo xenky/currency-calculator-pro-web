@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { KEYPAD_LAYOUT } from '../constants';
 
 interface KeypadProps {
   onKeyPress: (key: string) => void;
   isModalOpen?: boolean;
+  isDarkMode: boolean;
 }
 
 const getAriaLabelForKey = (key: string): string => {
@@ -23,9 +24,7 @@ const getAriaLabelForKey = (key: string): string => {
   }
 };
 
-export const Keypad: React.FC<KeypadProps> = ({ onKeyPress }) => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+export const Keypad: React.FC<KeypadProps> = ({ onKeyPress, isDarkMode }) => {
 
   const getButtonStyles = (key: string) => {
     const isOperator = ['/', '*', '-', '+', '%'].includes(key);

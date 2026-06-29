@@ -1,13 +1,13 @@
-import React from 'react';
-import { Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import ".././global.css";
-import { ActiveView, AppSettings } from '../types';
+import React, { useState } from 'react';
+import { Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, useColorScheme, View } from 'react-native';
+import { ActiveView, AppSettings, ThemeMode } from '../types';
 import { CloseIcon } from './icons/CloseIcon';
 import { DarkModeIcon } from './icons/DarkModeIcon';
 import { HistoryIcon } from './icons/HistoryIcon';
 import { InfoIcon } from './icons/InfoIcon';
 import { LightModeIcon } from './icons/LightModeIcon';
 import { SyncIcon } from './icons/SyncIcon';
+import { ThemeSelectorModal } from './ThemeSelectorModal';
 
 interface MenuProps {
   isOpen: boolean;
@@ -19,11 +19,15 @@ interface MenuProps {
 }
 
 export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppSettingsChange, setActiveView, onUpdateRates }) => {
-  const isDarkMode = appSettings.darkMode;
+  const systemColorScheme = useColorScheme();
+  const isDarkMode = appSettings.theme === 'dark' || (appSettings.theme === 'system' && systemColorScheme === 'dark');
 
-  const toggleDarkMode = () => {
+  const [isThemeModalVisible, setIsThemeModalVisible] = useState(false);
+
+  const handleThemeSelection = (theme: ThemeMode) => {
+    onAppSettingsChange({ ...appSettings, theme });
+    setIsThemeModalVisible(false);
     onClose();
-    onAppSettingsChange({ ...appSettings, darkMode: !appSettings.darkMode });
   };
 
   const navigateTo = (view: ActiveView) => {
@@ -34,6 +38,12 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
   const handleUpdateRatesClick = () => {
     onUpdateRates();
     onClose();
+  };
+
+  const getThemeButtonText = () => {
+    if (appSettings.theme === 'light') return 'Modo Claro';
+    if (appSettings.theme === 'dark') return 'Modo Oscuro';
+    return 'Tema del Sistema';
   };
 
   const styles = StyleSheet.create({
@@ -83,6 +93,7 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       paddingHorizontal: 16,
       paddingVertical: 12,
       backgroundColor: isDarkMode ? '#334155' : '#f1f5f9',
@@ -124,11 +135,11 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>Tema</Text>
                   <TouchableOpacity 
-                    onPress={toggleDarkMode} 
+                    onPress={() => setIsThemeModalVisible(true)} 
                     style={styles.button}
-                    accessibilityLabel={`Cambiar a modo ${isDarkMode ? 'claro' : 'oscuro'}`}
+                    accessibilityLabel={`Seleccionar tema. Tema actual: ${getThemeButtonText()}`}
                   >
-                    <Text style={styles.buttonText}>{isDarkMode ? 'Modo Oscuro' : 'Modo Claro'}</Text>
+                    <Text style={styles.buttonText}>{getThemeButtonText()}</Text>
                     {isDarkMode ? <LightModeIcon width={20} height={20} stroke="#facc15" /> : <DarkModeIcon width={20} height={20} stroke="#64748b" />}
                   </TouchableOpacity>
                 </View>
@@ -167,6 +178,13 @@ export const Menu: React.FC<MenuProps> = ({ isOpen, onClose, appSettings, onAppS
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
+      <ThemeSelectorModal 
+        isVisible={isThemeModalVisible}
+        onClose={() => setIsThemeModalVisible(false)}
+        currentTheme={appSettings.theme}
+        onThemeSelect={handleThemeSelection}
+        isDarkMode={isDarkMode}
+      />
     </Modal>
   );
 };

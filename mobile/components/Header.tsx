@@ -1,25 +1,24 @@
-
 import React from 'react';
-import { Pressable, View, Text, StyleSheet, useColorScheme } from 'react-native';
-import { ActiveView } from '../types';
+import { Pressable, View, Text, StyleSheet } from 'react-native';
 import { ArrowLeftIcon } from './icons/ArrowLeftIcon';
 import { MenuIcon } from './icons/MenuIcon';
+import { useAppContext } from '../context/AppContext';
+import { Colors } from '../constants/Colors';
 
 interface HeaderProps {
   onMenuToggle: () => void;
-  activeView: ActiveView;
+  activeView: string; // ActiveView type is not directly used here, so using string
   headerTitle: string;
   onNavigateBack: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ 
+export const Header: React.FC<HeaderProps> = ({
   onMenuToggle,
   activeView,
   headerTitle,
   onNavigateBack
 }) => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { isDarkMode } = useAppContext();
 
   const containerStyle = [
     styles.container,
@@ -31,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
     pressed ? (isDarkMode ? styles.pressablePressedDark : styles.pressablePressedLight) : null
   ];
 
-  const iconColor = '#FFFFFF';
+  const iconColor = isDarkMode ? Colors.dark.text : Colors.light.text;
 
   return (
     <View style={containerStyle}>
@@ -43,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
         ) : (
           <View style={styles.placeholder} />
         )}
-        <Text style={styles.title}>{headerTitle}</Text>
+        <Text style={[styles.title, { color: iconColor }]}>{headerTitle}</Text>
         <Pressable onPress={onMenuToggle} style={pressableStyle} accessibilityLabel="Abrir menú">
           <MenuIcon stroke={iconColor} />
         </Pressable>
@@ -63,10 +62,10 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   containerLight: {
-    backgroundColor: '#4338CA', // indigo-600
+    backgroundColor: Colors.light.background,
   },
   containerDark: {
-    backgroundColor: '#1e293b', // slate-800
+    backgroundColor: Colors.dark.background,
   },
   innerContainer: {
     flexDirection: 'row',
@@ -78,10 +77,10 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
   },
   pressablePressedLight: {
-    backgroundColor: '#3730a3', // indigo-700
+    backgroundColor: '#E0E0E0', // A slightly darker shade of light background
   },
   pressablePressedDark: {
-    backgroundColor: '#334155', // slate-700
+    backgroundColor: '#2C2C2C', // A slightly darker shade of dark background
   },
   placeholder: {
     width: 40,
@@ -89,6 +88,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#FFFFFF',
   },
 });
+
+export default Header;

@@ -1,12 +1,13 @@
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import ".././global.css";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import CoffeeCupIcon from './icons/CoffeeCupIcon';
 import { HeartIcon } from './icons/HeartIcon';
 
-const ListItem: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+interface AboutScreenProps {
+  isDarkMode: boolean;
+}
+
+const ListItem: React.FC<{ children: React.ReactNode, isDarkMode: boolean }> = ({ children, isDarkMode }) => {
 
   const styles = StyleSheet.create({
     root: {
@@ -34,9 +35,7 @@ const ListItem: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-export const AboutScreen: React.FC = () => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+export const AboutScreen: React.FC<AboutScreenProps> = ({ isDarkMode }) => {
 
   const styles = StyleSheet.create({
     safeArea: {
@@ -135,12 +134,12 @@ export const AboutScreen: React.FC = () => {
             <View>
               <Text style={styles.featuresTitle}>Funcionalidades Destacadas:</Text>
               <View style={styles.featuresList}>
-                <ListItem>Conversión entre múltiples monedas (VES, COP, USD, EUR).</ListItem>
-                <ListItem>Tasas de cambio reales obtenidas desde fuentes oficiales.</ListItem>
-                <ListItem>Opción para establecer tasas de cambio manuales.</ListItem>
-                <ListItem>Historial de operaciones.</ListItem>
-                <ListItem>Modo claro y oscuro.</ListItem>
-                <ListItem>Funcionamiento offline.</ListItem>
+                <ListItem isDarkMode={isDarkMode}>Conversión entre múltiples monedas (VES, COP, USD, EUR).</ListItem>
+                <ListItem isDarkMode={isDarkMode}>Tasas de cambio reales obtenidas desde fuentes oficiales.</ListItem>
+                <ListItem isDarkMode={isDarkMode}>Opción para establecer tasas de cambio manuales.</ListItem>
+                <ListItem isDarkMode={isDarkMode}>Historial de operaciones.</ListItem>
+                <ListItem isDarkMode={isDarkMode}>Modo claro y oscuro.</ListItem>
+                <ListItem isDarkMode={isDarkMode}>Funcionamiento offline.</ListItem>
               </View>
             </View>
             
@@ -151,10 +150,10 @@ export const AboutScreen: React.FC = () => {
                  <Text style={styles.developerInfoText}>Desarrollada con </Text>
                  <HeartIcon width={20} height={20} style={{ marginHorizontal: 4 }} fill="#ef4444"/>
                  <Text style={styles.developerInfoText}> y </Text>
-                 <CoffeeCupIcon width={24} height={24} style={{ marginHorizontal: 4 }} color="#EF4444"/>
+                 <CoffeeCupIcon size={24} style={{ marginHorizontal: 4 }} color="#EF4444"/>
                  <Text style={styles.developerInfoText}> por:</Text>
               </View>
-              <Text style={styles.developerName}>Freddy Rujano</Text>
+              <Text style={styles.developerName}>Xenky</Text>
               <Text style={styles.developerLocation}>La Grita - Táchira</Text>
               <Text style={styles.developerLocation}>Venezuela</Text>
             </View>

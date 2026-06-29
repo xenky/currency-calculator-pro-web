@@ -31,7 +31,7 @@ export const AboutScreen: React.FC = () => {
 
           <div className="flex flex-col items-center">
             <p className="font-medium flex items-end">Desarrollada con <HeartIcon className="w-5 h-5 "/> y <CoffeeCupIcon color='#EF4444' className=" w-6 h-9 ml-2 mr-2 "/>por:</p>
-            <p className="text-lg font-semibold text-indigo-700 dark:text-indigo-400 mt-1">Freddy Rujano</p>
+            <p className="text-lg font-semibold text-indigo-700 dark:text-indigo-400 mt-1">Xenky</p>
             <p>La Grita - Táchira</p>
             <p>Venezuela</p>
           </div>

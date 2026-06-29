@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
-import ".././global.css";
+import { useAppContext } from '../context/AppContext';
 import {
   CURRENCY_LABELS,
   CURRENCY_LABELS_SINGULAR,
@@ -128,16 +128,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [rateTypeSelection, setRateTypeSelection] =
     useState<RateTypeSelection>("Oficial");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [manualRateAnimationClass, setManualRateAnimationClass] =
-    useState<string>("");
 
-  useEffect(() => {
-    if (rateTypeSelection === "Manual") {
-      setManualRateAnimationClass("rotate-right");
-    } else {
-      setManualRateAnimationClass("rotate-left");
-    }
-  }, [rateTypeSelection]);
+  
 
   let displayBase: Currency, displayQuote: Currency;
   if (
@@ -273,7 +265,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     });
   };
 
-  if (!isOpen) return null;
+  
 
   let automaticRateDisplayString = "Tasa Automática no disponible";
   // Create a matrix based purely on official rates to show the correct automatic rate.
@@ -306,29 +298,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     rateTypeSelection === "Manual"
       ? "Guardar Tasa Manual"
       : "Usar Tasa Automática";
-  let saveButtonDisabled = false;
-
-  if (errorMessage) {
-    saveButtonDisabled = true;
-  } else if (rateTypeSelection === "Oficial") {
-    const currentActivePreference =
-      preferredRateTypes[orderedPairKeyForStorage];
-    const isEffectivelyOfficial =
-      currentActivePreference === "oficial" ||
-      (!currentActivePreference && !manualRateEntryForPair);
-    if (isEffectivelyOfficial) {
-      saveButtonDisabled = true;
-    }
-  } else {
-    // Manual
-    if (parseDisplayNumber(manualRateInput) <= 0) {
-      saveButtonDisabled = true;
-    }
-  }
 
   const isSaveDisabled = errorMessage ? true : rateTypeSelection === 'Oficial' ? (preferredRateTypes[orderedPairKeyForStorage] === 'oficial' || (!preferredRateTypes[orderedPairKeyForStorage] && !manualRateEntryForPair)) : parseDisplayNumber(manualRateInput) <= 0;
 
-  const isDarkMode = appSettings.darkMode;
+  const { isDarkMode } = useAppContext();
 
   const styles = StyleSheet.create({
     safeArea: {
@@ -584,7 +557,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 />
               </View>
               <Text style={styles.copToggleDescription}>
-                Si al usar Pesos (COP) como moneda de entrada, ingresa '20' en lugar de '20.000', active esta opción.
+                Si al usar Pesos (COP) como moneda de entrada, ingresa &apos;20&apos; en lugar de &apos;20.000&apos;, active esta opción.
               </Text>
             </View>
           )}

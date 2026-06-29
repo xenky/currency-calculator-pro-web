@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CURRENCY_LABELS } from '../constants';
 import { formatNumberForDisplay } from '../services/calculatorService';
 import { ConversionRateInfo, Currency } from '../types';
@@ -12,6 +12,7 @@ interface CurrencyOutputProps {
   onSettingsClick: () => void;
   isInputCurrency: boolean;
   onCurrencySelect: (currency: Currency) => void;
+  isDarkMode: boolean;
   inputDisplayComponent?: React.ReactNode;
 }
 
@@ -22,11 +23,10 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
   onSettingsClick,
   isInputCurrency,
   onCurrencySelect,
+  isDarkMode,
   inputDisplayComponent,
 }) => {
   const formattedValue = value !== null ? formatNumberForDisplay(value, 2, true) : '-.--';
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
 
   const handleCardClick = () => {
     if (!isInputCurrency) {
@@ -35,15 +35,15 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
   };
 
   if (isInputCurrency && inputDisplayComponent) {
-    return <>{inputDisplayComponent}</>;
+    return <View>{inputDisplayComponent}</View>;
   }
 
   const styles = StyleSheet.create({
     root: {
-      padding: 4,
+      // No specific root styles needed now, using container for margins
     },
     container: {
-      paddingVertical: 1,
+      paddingVertical: 8,
       borderRadius: 8,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
@@ -52,17 +52,19 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
       elevation: 5,
       flexDirection: 'row',
       alignItems: 'center',
-      height: '100%',
+      height: 80, // Set a fixed height
       justifyContent: 'space-between',
-      paddingHorizontal: 8,
+      paddingHorizontal: 16,
       backgroundColor: isDarkMode ? '#334155' : '#fff',
+      marginVertical: 4,
+      marginHorizontal: 8,
     },
     textContainer: {
       flexDirection: 'column',
       flexGrow: 1,
-      height: '100%',
-      justifyContent: 'space-between',
+      justifyContent: 'space-around',
       minWidth: 0,
+      flex: 1,
     },
     currencyLabel: {
       fontSize: 14,
@@ -88,17 +90,16 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
       color: isDarkMode ? '#f87171' : '#ef4444',
     },
     settingsTouchable: {
-      padding: 4,
+      padding: 8,
       marginLeft: 8,
       flexShrink: 0,
-      height: '100%',
       alignItems: 'center',
       justifyContent:'center',
     },
   });
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.root}
       onPress={handleCardClick}
       accessibilityLabel={`Seleccionar ${CURRENCY_LABELS[currency]}`}
@@ -120,13 +121,13 @@ export const CurrencyOutput: React.FC<CurrencyOutputProps> = ({
             </Text>
           )}
         </View>
-        <TouchableOpacity 
-          onPress={onSettingsClick} 
-          style={styles.settingsTouchable}
-          accessibilityLabel={`Ajustar tasa para ${currency}`}
-        >
-          <SettingsIcon height="50%"  fill={isDarkMode ? '#fff' : '#64748b'} />
-        </TouchableOpacity>
+        <TouchableOpacity
+            onPress={onSettingsClick}
+            style={styles.settingsTouchable}
+            accessibilityLabel={`Ajustar tasa para ${currency}`}
+          >
+            <SettingsIcon height={40} fill={isDarkMode ? '#fff' : '#64748b'} /> 
+          </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import { CURRENCIES, CURRENCY_LABELS, CURRENCY_SYMBOLS } from "../constants";
@@ -16,11 +15,10 @@ import { TrashIcon } from "./icons/TrashIcon";
 interface HistoryScreenProps {
   history: HistoryEntry[];
   clearHistory: () => void;
+  isDarkMode: boolean;
 }
 
-const HistoryItem: React.FC<{ entry: HistoryEntry }> = ({ entry }) => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === "dark";
+const HistoryItem: React.FC<{ entry: HistoryEntry, isDarkMode: boolean }> = ({ entry, isDarkMode }) => {
 
   // Styles are self-contained and already migrated, no changes needed here.
   const styles = StyleSheet.create({
@@ -149,12 +147,11 @@ const HistoryItem: React.FC<{ entry: HistoryEntry }> = ({ entry }) => {
 export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   history,
   clearHistory,
+  isDarkMode,
 }) => {
   const validHistory = history.filter(
     (entry) => entry.results && entry.inputCurrency
   );
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === "dark";
 
   const clearButtonStyle = ({ pressed }: { pressed: boolean }) => [
     styles.clearButton,
@@ -168,6 +165,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
           <View style={styles.clearButtonContainer}>
             <TouchableOpacity
               onPress={clearHistory}
+              // @ts-ignore
               style={clearButtonStyle}
               accessibilityLabel="Limpiar historial"
             >
@@ -185,7 +183,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
         ) : (
           <FlatList
             data={validHistory}
-            renderItem={({ item }) => <HistoryItem entry={item} />}
+            renderItem={({ item }) => <HistoryItem entry={item} isDarkMode={isDarkMode} />}
             keyExtractor={(item) => item.id.toString()}
             ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
             contentContainerStyle={styles.listContent}
