@@ -3,22 +3,20 @@ import React, { useRef, useLayoutEffect } from 'react';
 import { AppSettings, Currency } from '../types';
 import { CURRENCY_LABELS } from '../constants';
 import styles from './styles/component.module.css';
-import { formatNumberForDisplay } from '../services/calculatorService';
+import { calculateEffectiveValue, formatNumberForDisplay } from '../services/calculatorService';
  
 interface InputDisplayProps {
   value: string;
   activeInputCurrency: Currency;
   evaluationResult: number;
+  settings: AppSettings
 }
 
-export const InputDisplay: React.FC<InputDisplayProps> = ({ value, activeInputCurrency, evaluationResult }) => {
-  // Código agregado por mí:
-  // (currency: Currency, settings: AppSettings) => {
-  //   if (currency === 'COP' && settings.copMultiplyByThousand) {
-  //     evaluationResult *= 1000;
-  //   }
-  // };
-  const formattedResult = formatNumberForDisplay(evaluationResult, 2, true);
+export const InputDisplay: React.FC<InputDisplayProps> = ({ value, activeInputCurrency, evaluationResult, settings }) => {
+  
+  const valor = calculateEffectiveValue (evaluationResult, activeInputCurrency, settings);
+
+  const formattedResult = formatNumberForDisplay(valor, 2, true);
   const displayFontSize = value.length > 13 ? (value.length > 20 ? `${styles.inputValueFont3}` : `${styles.inputValueFont2}`) : `${styles.inputValueFont}`;
   const inputRef = useRef<HTMLDivElement>(null);
 

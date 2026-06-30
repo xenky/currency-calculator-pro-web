@@ -353,7 +353,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   />
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Si al usar Pesos (COP) como moneda de entrada principal, ingresa '20' en lugar de '20.000', active esta opción.
+                  Si al usar Pesos (COP) como moneda de entrada principal ingresas '20' en lugar de '20.000', activa esta opción.
                 </p>
               </div>
             )}
