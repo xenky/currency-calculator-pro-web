@@ -37,8 +37,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 /// <reference lib="webworker" />
 var sw = self;
-var STATIC_CACHE_NAME = 'static-cache-v3';
-var RATES_CACHE_NAME = 'rates-cache-v2';
+var STATIC_CACHE_NAME = 'static-cache-v4';
+var RATES_CACHE_NAME = 'rates-cache-v3';
 var RATES_API_URL = 'https://raw.githubusercontent.com/xenky/exchange_rates/main/rates.json';
 // URLs for the app shell to be cached
 // Pre-caching external dependencies to ensure robust offline functionality
